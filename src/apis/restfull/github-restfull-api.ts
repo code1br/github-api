@@ -5,7 +5,7 @@ import { UserModel } from "../../model/user-model";
 export class GitHubRestfullApi implements GitHubApi{
 	async followUser(currentUser: UserModel, userToFollow: string){
 		try{
-			return await githubApi.put(`/user/following/${userToFollow}`, {
+			return await githubApi.put(`/user/following/${userToFollow}`, {}, {
 				auth:{
 					username: currentUser.username,
 					password: currentUser.PAT	
@@ -13,7 +13,7 @@ export class GitHubRestfullApi implements GitHubApi{
 			})
 
 		}catch(err){
-			throw new Error(`${err}`)
+			return(err as Error)
 		}
 	}
 	
@@ -27,8 +27,8 @@ export class GitHubRestfullApi implements GitHubApi{
 			})
 
 		}catch(err){
-			throw new Error(`${err}`)
+			return(err as Error)
 		}
 	}
 	
-} 
+}

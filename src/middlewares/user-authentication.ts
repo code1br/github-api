@@ -28,7 +28,7 @@ async function Authenticate(req: Request, res: Response, next: NextFunction){
 			CURRENT_USER.username = username
 			CURRENT_USER.PAT = token
 
-			return next
+			return next()
 		}catch(err){
 			res.status(401).send(`Error while authenticating: ${err}`)
 		}
