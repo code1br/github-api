@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { Buffer } from 'buffer'
-import { githubApi } from '../apis/github-api'
+import { githubApi } from '../config/github-api'
 
 let PAT = ''
 
