@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import { Buffer } from 'buffer'
 import { githubApi } from '../apis/github-api'
 
+let PAT = ''
+
 async function Authenticate(req: Request, res: Response, next: NextFunction){
 	const headerAuth = req.headers.authorization
 
@@ -19,6 +21,8 @@ async function Authenticate(req: Request, res: Response, next: NextFunction){
 				}
 			})
 
+			PAT = token
+
 			return next
 		}catch(err){
 			res.status(401).send(`Error while authenticating: ${err}`)
@@ -31,3 +35,4 @@ async function Authenticate(req: Request, res: Response, next: NextFunction){
 }
 
 export { Authenticate }
+export { PAT }
