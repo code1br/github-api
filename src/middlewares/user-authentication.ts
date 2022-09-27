@@ -1,8 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
 import { Buffer } from 'buffer'
 import { githubApi } from '../config/github-api'
+import { UserModel } from '../model/user-model'
 
-let PAT = ''
+let CURRENT_USER: UserModel = {
+	username: '',
+	PAT: ''
+}
 
 async function Authenticate(req: Request, res: Response, next: NextFunction){
 	const headerAuth = req.headers.authorization
@@ -21,7 +25,8 @@ async function Authenticate(req: Request, res: Response, next: NextFunction){
 				}
 			})
 
-			PAT = token
+			CURRENT_USER.username = username
+			CURRENT_USER.PAT = token
 
 			return next
 		}catch(err){
@@ -35,4 +40,4 @@ async function Authenticate(req: Request, res: Response, next: NextFunction){
 }
 
 export { Authenticate }
-export { PAT }
+export { CURRENT_USER }

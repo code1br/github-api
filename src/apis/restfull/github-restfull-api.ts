@@ -1,12 +1,11 @@
 import { githubApi } from "../../config/github-api";
 import { GitHubApi } from "../github-api";
-import { PAT } from '../../middlewares/user-authentication'
 import { UserModel } from "../../model/user-model";
 
 export class GitHubRestfullApi implements GitHubApi{
-	async followUser(currentUser: UserModel, username: string){
+	async followUser(currentUser: UserModel, userToFollow: string){
 		try{
-			return await githubApi.put(`/user/following/${username}`, {
+			return await githubApi.put(`/user/following/${userToFollow}`, {
 				auth:{
 					username: currentUser.username,
 					password: currentUser.PAT	
@@ -17,9 +16,10 @@ export class GitHubRestfullApi implements GitHubApi{
 			throw new Error(`${err}`)
 		}
 	}
-	async unfollowUser(currentUser: UserModel, username: string){
+	
+	async unfollowUser(currentUser: UserModel, userToFollow: string){
 		try{
-			return await githubApi.delete(`/user/following/${username}`, {
+			return await githubApi.delete(`/user/following/${userToFollow}`, {
 				auth:{
 					username: currentUser.username,
 					password: currentUser.PAT	

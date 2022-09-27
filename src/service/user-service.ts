@@ -6,13 +6,13 @@ export class UserService{
 		private GitHubApi: GitHubApi
 	){}
 
-	followUser(currentUser: UserModel, username: string){
+	followUser(currentUser: UserModel, userToFollow: string){
 
-		if(!username){
+		if(!userToFollow){
 			throw new Error(`Username was not provided`)
 		}
 
-		this.GitHubApi.followUser(currentUser, username)
+		this.GitHubApi.followUser(currentUser, userToFollow)
 		
 	}
 }
