@@ -27,4 +27,23 @@ export class UserController{
 			}
 		}
 	}
+
+	static async unfollowUser(req: Request, res: Response){
+		try{
+			const currentUser = CURRENT_USER
+			const userToUnfollow = req.params.userToUnfollow
+
+			const service = UserController.getService()
+
+			await service.unfollowUser(currentUser, userToUnfollow)
+
+			res.status(204).send()
+		}catch(err){
+			if (err instanceof Error) {
+				res.status(400).send(err.message)
+			}else{
+				res.status(400).send("Unexpected error !!!")
+			}
+		}
+	}
 }

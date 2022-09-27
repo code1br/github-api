@@ -23,4 +23,21 @@ export class UserService{
 			throw new Error(`Response status different from expected ${result.status}`)
 		}
 	}
+
+	async unfollowUser(currentUser: UserModel, userToUnfollow: string){
+
+		if(!userToUnfollow){
+			throw new Error(`Username was not provided`)
+		}
+
+		const result: AxiosResponse<any, any> | Error =  await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)	
+
+		if(result instanceof Error){
+			throw new Error(`Error on axios request: ${result.message}`)
+		}
+
+		if(result.status != 204){
+			throw new Error(`Response status different from expected ${result.status}`)
+		}
+	}
 }

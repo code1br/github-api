@@ -17,9 +17,9 @@ export class GitHubRestfullApi implements GitHubApi{
 		}
 	}
 	
-	async unfollowUser(currentUser: UserModel, userToFollow: string){
+	async unfollowUser(currentUser: UserModel, userToUnfollow: string){
 		try{
-			return await githubApi.delete(`/user/following/${userToFollow}`, {
+			return await githubApi.delete(`/user/following/${userToUnfollow}`, {
 				auth:{
 					username: currentUser.username,
 					password: currentUser.PAT	
