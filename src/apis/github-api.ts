@@ -1,5 +1,7 @@
-import axios from 'axios';
+import { AxiosResponse } from "axios"
+import { UserModel } from "../model/user-model"
 
-export const githubApi = axios.create({
-	baseURL: 'https://api.github.com'
-});
+export interface GitHubApi{
+	followUser: (currentUser: UserModel, userToFollow: string) => Promise<AxiosResponse<any, any> | Error>
+	unfollowUser: (currentUser: UserModel, userToFollow: string) => Promise<AxiosResponse<any, any> | Error>
+}

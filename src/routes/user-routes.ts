@@ -1,8 +1,9 @@
 import express from 'express'
+import { UserController } from '../controllers/user-controller'
 import { Authenticate } from '../middlewares/user-authentication'
 
 export const routerUsers = express.Router()
 
 routerUsers
-	.put('/users/following/:username', Authenticate, () => {})
-	.delete('/users/following/:username', Authenticate, () => {})
+	.put('/users/following/:userToFollow', Authenticate, UserController.followUser)
+	.delete('/users/following/:userToFollow', Authenticate, () => {})
