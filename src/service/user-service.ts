@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import { GitHubApi } from "../apis/github-api";
 import { UserModel } from "../model/user-model";
 
@@ -10,18 +9,18 @@ export class UserService{
 	async followUser(currentUser: UserModel, userToFollow: string){
 
 		if(!userToFollow){
+			throw new Error(`UserToFollow was not provided`)
+		}
+
+		if(!currentUser.username){
 			throw new Error(`Username was not provided`)
 		}
 
-		const result: AxiosResponse<any, any> | Error =  await this.GitHubApi.followUser(currentUser, userToFollow)	
-
-		if(result instanceof Error){
-			throw new Error(`Error on axios request: ${result.message}`)
+		if(!currentUser.PAT){
+			throw new Error(`PAT was not provided`)
 		}
 
-		if(result.status != 204){
-			throw new Error(`Response status different from expected ${result.status}`)
-		}
+		await this.GitHubApi.followUser(currentUser, userToFollow)	
 	}
 
 	async unfollowUser(currentUser: UserModel, userToUnfollow: string){
@@ -30,14 +29,14 @@ export class UserService{
 			throw new Error(`Username was not provided`)
 		}
 
-		const result: AxiosResponse<any, any> | Error =  await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)	
-
-		if(result instanceof Error){
-			throw new Error(`Error on axios request: ${result.message}`)
+		if(!currentUser.username){
+			throw new Error(`Username was not provided`)
 		}
 
-		if(result.status != 204){
-			throw new Error(`Response status different from expected ${result.status}`)
+		if(!currentUser.PAT){
+			throw new Error(`PAT was not provided`)
 		}
+
+		await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)	
 	}
 }
