@@ -41,6 +41,9 @@ export default {
 					},
 					"400": {
 						"description": "Bad Request: It was not possible to follow the given user"
+					},
+					"401": {
+						"description": "Unauthorized: Error on authentication"
 					}
 				}
 			},
@@ -63,6 +66,9 @@ export default {
 					},
 					"400": {
 						"description": "Bad Request: It was not possible to unfollow the given user"
+					},
+					"401": {
+						"description": "Unauthorized: Error on authentication"
 					}
 				}
 			}
