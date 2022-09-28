@@ -29,8 +29,8 @@ The project documentation was done using Swagger and can be accessed on the rout
 1. In the following line, a brief explanation of each environment variable will be presented.
 
 ```shell
-SERVER_PORT = <The port where your application will be runned>
-SERVER_HOST = <The ip address where your application will be runned>
+SERVER_PORT = <The port where your application will be run>
+SERVER_HOST = <The ip address where your application will be run>
 ```
 
 ## ⚒ Testing
