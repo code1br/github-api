@@ -51,17 +51,17 @@ export class UserService{
 			throw new Error(`PAT was not provided`)
 		}
 
-		const repositories =  await this.GitHubApi.listRepositories(currentUser) as GithubRepositoryModel[]
+		const githubRepositories =  await this.GitHubApi.listRepositories(currentUser) as GithubRepositoryModel[]
 
-		let repositoriesNames: RepositoryModel[] = []
+		let repositories: RepositoryModel[] = []
 
-		for(let repository of repositories){
-			repositoriesNames.push({
+		for(let repository of githubRepositories){
+			repositories.push({
 				name: repository.name,
 				private: repository.private
 			})
 		}
 
-		return repositoriesNames
+		return repositories
 	}
 }
