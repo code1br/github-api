@@ -1,4 +1,5 @@
 import { GitHubApi } from "../apis/github-api";
+import { GithubRepositoryModel, RepositoryModel } from "../model/repository-model";
 import { UserModel } from "../model/user-model";
 
 export class UserService{
@@ -38,5 +39,29 @@ export class UserService{
 		}
 
 		await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)	
+	}
+
+	async listRepositories(currentUser: UserModel){
+
+		if(!currentUser.username){
+			throw new Error(`Username was not provided`)
+		}
+
+		if(!currentUser.PAT){
+			throw new Error(`PAT was not provided`)
+		}
+
+		const repositories =  await this.GitHubApi.listRepositories(currentUser) as GithubRepositoryModel[]
+
+		let repositoriesNames: RepositoryModel[] = []
+
+		for(let repository of repositories){
+			repositoriesNames.push({
+				name: repository.name,
+				private: repository.private
+			})
+		}
+
+		return repositoriesNames
 	}
 }
