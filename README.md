@@ -9,7 +9,7 @@ The project is a simple challenge to test my skills in consuming APIs, the Githu
 - [X] All API responses must be in JSON format.
 - [X] It must have 2 endpoints that allows the user to follow/unfollow another user.
 - [X] Unit testing must be implemented
-- [ ] The project must have a documentation
+- [X] The project must have a documentation
 
 * These requirements will be updated during the project development.
 
