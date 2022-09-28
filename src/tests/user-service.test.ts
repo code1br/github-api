@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios"
 import { GitHubApi } from "../apis/github-api"
 import { UserModel } from "../model/user-model"
 import { UserService } from "../service/user-service"

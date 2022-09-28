@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import { GitHubApi } from "../apis/github-api";
 import { UserModel } from "../model/user-model";
 
@@ -21,15 +20,7 @@ export class UserService{
 			throw new Error(`PAT was not provided`)
 		}
 
-		const result: AxiosResponse<any, any> | Error =  await this.GitHubApi.followUser(currentUser, userToFollow)	
-
-		// if(result instanceof Error){
-		// 	throw new Error(`Error on axios request: ${result.message}`)
-		// }
-
-		// if(result.status != 204){
-		// 	throw new Error(`Response status different from expected ${result.status}`)
-		// }
+		await this.GitHubApi.followUser(currentUser, userToFollow)	
 	}
 
 	async unfollowUser(currentUser: UserModel, userToUnfollow: string){
@@ -46,14 +37,6 @@ export class UserService{
 			throw new Error(`PAT was not provided`)
 		}
 
-		const result: AxiosResponse<any, any> | Error =  await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)	
-
-		// if(result instanceof Error){
-		// 	throw new Error(`Error on axios request: ${result.message}`)
-		// }
-
-		// if(result.status != 204){
-		// 	throw new Error(`Response status different from expected ${result.status}`)
-		// }
+		await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)	
 	}
 }
