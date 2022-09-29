@@ -125,8 +125,6 @@ export class UserService{
 
 		const currentYear = new Date().getFullYear()
 
-
-
 		for (const repository of repositoriesToSearch){
 			if(!repository.private){
 				const commits: GithubCommitModel[] = await (await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)).data as GithubCommitModel[]

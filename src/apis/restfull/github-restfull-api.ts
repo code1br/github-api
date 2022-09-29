@@ -32,7 +32,6 @@ export class GitHubRestfullApi implements GitHubApi{
 	}
 
 	async getRepositoryCommits(currentUser: UserModel, login: string, repositoryName: string){
-		console.log(`/repos/${login}/${repositoryName}/commits`)
 		return await githubApi.get(`/repos/${login}/${repositoryName}/commits`,{
 			auth:{
 				username: currentUser.login,
