@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import { GitHubApi } from "../apis/github-api";
 import { GithubRepositoryModel, RepositoryModel } from "../model/repository-model";
 import { UserModel } from "../model/user-model";
@@ -51,7 +52,13 @@ export class UserService{
 			throw new Error(`PAT was not provided`)
 		}
 
-		const githubRepositories = await this.GitHubApi.listRepositories(currentUser) as GithubRepositoryModel[] || []
+		const result = await this.GitHubApi.listRepositories(currentUser)
+		
+		if(result.status != 200){
+			throw new Error(`Response status different from expected ${result.status}`)
+		}
+
+		const githubRepositories = result.data as GithubRepositoryModel[]
 
 		let repositories: RepositoryModel[] = []
 
@@ -61,7 +68,6 @@ export class UserService{
 				private: repository.private
 			})
 		}
-
 
 		return repositories
 	}

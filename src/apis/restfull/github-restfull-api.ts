@@ -35,18 +35,12 @@ export class GitHubRestfullApi implements GitHubApi{
 	}
 
 	async listRepositories(currentUser: UserModel){
-		const result = await githubApi.get(`/user/repos`,{
+		return await githubApi.get(`/user/repos`,{
 			auth:{
 				username: currentUser.username,
 				password: currentUser.PAT	
 			}
 		})
-
-		if(result.status != 200){
-			throw new Error(`Response status different from expected ${result.status}`)
-		}
-
-		return result.data
 	}
 	
 }

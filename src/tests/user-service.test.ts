@@ -123,15 +123,39 @@ describe('Unfollow a user', () => {
 })
 
 describe('List repositories', () => {
-	it('should be able to list repositories', () => {
+	afterEach(jest.clearAllMocks)
+
+	it('should be able to list repositories', async () => {
 		const currentUser: UserModel = {
 			username: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		expect(service.listRepositories(currentUser)).resolves.not.toThrow()
+		const expectedResult = [
+			{
+				name: 'repo1',
+				private: false
+			},{
+				name: 'repo2',
+				private: false
+			},{
+				name: 'repo3',
+				private: true
+			}
+		]
 
+		const apiResponse = {
+			"status": 200,
+			"data": expectedResult
+		}
+
+		listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
+
+		const result = await service.listRepositories(currentUser)
+		
+		expect(result).toEqual(expectedResult)
 		expect(listRepositoriesSpy).toHaveBeenCalledWith(currentUser)
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
 	})
 
 	it('should not be able to list repositories with currentUser that contains empty username', () => {
@@ -154,5 +178,22 @@ describe('List repositories', () => {
 		expect(service.listRepositories(currentUser)).rejects.toThrow()
 
 		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+	})
+
+	it('should not be able to list repositories when status code is not 200', async () => {
+		const currentUser: UserModel = {
+			username: "AAAAAAAA",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const apiResponse = {
+			"status": 400
+		}
+
+		listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
+
+		expect(service.listRepositories(currentUser)).rejects.toThrow()
+		expect(listRepositoriesSpy).toHaveBeenCalledWith(currentUser)
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
 	})
 })
