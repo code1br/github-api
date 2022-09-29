@@ -110,4 +110,20 @@ export class UserController{
 			}
 		}
 	}
+
+	static async getMostUsedLanguages(req: Request, res: Response){
+		try{
+			const currentUser = CURRENT_USER
+
+			const service = UserController.getService()
+
+			res.status(200).json(await service.getMostUsedLanguages(currentUser))
+		}catch(err){
+			if (err instanceof Error) {
+				res.status(400).send(err.message)
+			}else{
+				res.status(400).send("Unexpected error !!!")
+			}
+		}
+	}
 }

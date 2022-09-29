@@ -5,67 +5,67 @@ import { GithubPullModel } from "../model/pull-model";
 import { GithubRepositoryModel, RepositoryModel } from "../model/repository-model";
 import { UserModel } from "../model/user-model";
 
-export class UserService{
+export class UserService {
 	constructor(
 		private GitHubApi: GitHubApi
-	){}
+	) { }
 
-	async followUser(currentUser: UserModel, userToFollow: string){
+	async followUser(currentUser: UserModel, userToFollow: string) {
 
-		if(!userToFollow){
+		if (!userToFollow) {
 			throw new Error(`UserToFollow was not provided`)
 		}
 
-		if(!currentUser.login){
+		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
 
-		if(!currentUser.PAT){
+		if (!currentUser.PAT) {
 			throw new Error(`PAT was not provided`)
 		}
 
 		const result = await this.GitHubApi.followUser(currentUser, userToFollow)
 
-		if(result.status != 204){
+		if (result.status != 204) {
 			throw new Error(`Response status different from expected ${result.status}`)
 		}
 	}
 
-	async unfollowUser(currentUser: UserModel, userToUnfollow: string){
+	async unfollowUser(currentUser: UserModel, userToUnfollow: string) {
 
-		if(!userToUnfollow){
+		if (!userToUnfollow) {
 			throw new Error(`Username was not provided`)
 		}
 
-		if(!currentUser.login){
+		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
 
-		if(!currentUser.PAT){
+		if (!currentUser.PAT) {
 			throw new Error(`PAT was not provided`)
 		}
 
 		const result = await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)
-		
-		
-		if(result.status != 204){
+
+
+		if (result.status != 204) {
 			throw new Error(`Response status different from expected ${result.status}`)
 		}
 	}
 
-	async listRepositories(currentUser: UserModel){
+	async listRepositories(currentUser: UserModel) {
 
-		if(!currentUser.login){
+		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
 
-		if(!currentUser.PAT){
+		if (!currentUser.PAT) {
 			throw new Error(`PAT was not provided`)
 		}
 
 		const result = await this.GitHubApi.listRepositories(currentUser)
-		
-		if(result.status != 200){
+
+		if (result.status != 200) {
 			throw new Error(`Response status different from expected ${result.status}`)
 		}
 
@@ -73,7 +73,7 @@ export class UserService{
 
 		let repositories: RepositoryModel[] = []
 
-		for(let repository of githubRepositories){
+		for (let repository of githubRepositories) {
 			repositories.push({
 				name: repository.name,
 				owner: repository.owner.login,
@@ -84,18 +84,18 @@ export class UserService{
 		return repositories
 	}
 
-	async getAmountOfStars(currentUser: UserModel){
-		if(!currentUser.login){
+	async getAmountOfStars(currentUser: UserModel) {
+		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
 
-		if(!currentUser.PAT){
+		if (!currentUser.PAT) {
 			throw new Error(`PAT was not provided`)
 		}
 
 		const result = await this.GitHubApi.listRepositories(currentUser)
-		
-		if(result.status != 200){
+
+		if (result.status != 200) {
 			throw new Error(`Response status different from expected ${result.status}`)
 		}
 
@@ -103,19 +103,19 @@ export class UserService{
 
 		let amountOfStars = 0
 
-		for(const repository of githubRepositories){
+		for (const repository of githubRepositories) {
 			amountOfStars += repository.stargazers_count
 		}
 
 		return { stars: amountOfStars }
 	}
-	
-	async getAmountOfCommits(currentUser: UserModel){
-		if(!currentUser.login){
+
+	async getAmountOfCommits(currentUser: UserModel) {
+		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
 
-		if(!currentUser.PAT){
+		if (!currentUser.PAT) {
 			throw new Error(`PAT was not provided`)
 		}
 
@@ -126,41 +126,38 @@ export class UserService{
 
 		const currentYear = new Date().getFullYear()
 
-		for (const repository of repositoriesToSearch){
-			if(!repository.private){
-				const result = await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)
+		for (const repository of repositoriesToSearch) {
+			const result = await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)
 
-				if(result.status != 200){
-					throw new Error(`Response status different from expected ${result.status}`)
-				}
-
-				const commits: GithubCommitModel[] = await result.data as GithubCommitModel[]
+			if (result.status == 200) {
+				const commits: GithubCommitModel[] = await result.data as GithubCommitModel[] || []
 
 				for (const commit of commits) {
-					if(commit.author.login == currentUser.login){
+					if (commit.author.login == currentUser.login) {
 						totalCommits++
-						
-						if(new Date(commit.commit.committer.date).getFullYear() == currentYear){
+
+						if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
 							totalCommitsInCurrentYear++
 						}
 					}
 				}
 			}
+
 		}
 
-		return { 
+		return {
 			commits_in_current_year: totalCommitsInCurrentYear,
 			total_commits: totalCommits
 		}
-	
+
 	}
 
-	async getAmountOfPulls(currentUser: UserModel){
-		if(!currentUser.login){
+	async getAmountOfPulls(currentUser: UserModel) {
+		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
 
-		if(!currentUser.PAT){
+		if (!currentUser.PAT) {
 			throw new Error(`PAT was not provided`)
 		}
 
@@ -171,21 +168,17 @@ export class UserService{
 
 		const currentYear = new Date().getFullYear()
 
-		for (const repository of repositoriesToSearch){
-			if(!repository.private){
-				const result = await this.GitHubApi.getRepositoryPulls(currentUser, repository.owner, repository.name)
+		for (const repository of repositoriesToSearch) {
+			const result = await this.GitHubApi.getRepositoryPulls(currentUser, repository.owner, repository.name)
 
-				if(result.status != 200){
-					throw new Error(`Response status different from expected ${result.status}`)
-				}
-
+			if (result.status == 200) {
 				const pulls: GithubPullModel[] = await result.data as GithubPullModel[]
 
 				for (const pull of pulls) {
-					if(pull.user.login == currentUser.login){
+					if (pull.user.login == currentUser.login) {
 						totalPulls++
-						
-						if(new Date(pull.created_at).getFullYear() == currentYear){
+
+						if (new Date(pull.created_at).getFullYear() == currentYear) {
 							totalPullsInCurrentYear++
 						}
 					}
@@ -193,10 +186,54 @@ export class UserService{
 			}
 		}
 
-		return { 
+		return {
 			pulls_in_current_year: totalPullsInCurrentYear,
 			total_pulls: totalPulls
 		}
-	
+
+	}
+
+	async getMostUsedLanguages(currentUser: UserModel) {
+		if (!currentUser.login) {
+			throw new Error(`Username was not provided`)
+		}
+
+		if (!currentUser.PAT) {
+			throw new Error(`PAT was not provided`)
+		}
+
+		type LanguageType = { [key: string]: number }
+
+		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories(currentUser)
+
+		let languagesBytesSize: LanguageType = {}
+
+		let languagesPercentageUsage: LanguageType = {}
+
+		let totalBytes: number = 0
+
+		for (const repository of repositoriesToSearch) {
+			const result = await this.GitHubApi.getMostUsedLanguages(currentUser, repository.owner, repository.name)
+			const usedLanguages = result.data as LanguageType
+
+			if (result.status == 200) {
+				Object.entries(usedLanguages).forEach(([key, value]) => {
+					let newValue = languagesBytesSize[key] ? (languagesBytesSize[key] + value) : value;
+
+					Object.assign(languagesBytesSize, { [key]: newValue })
+				})
+			}
+		}
+
+		Object.entries(languagesBytesSize).forEach(([key, value]) => {
+			totalBytes += value
+		})
+
+		Object.entries(languagesBytesSize).forEach(([key, value]) => {
+			Object.assign(languagesPercentageUsage, { [key]: (value * 100 / totalBytes).toFixed(2) })
+		})
+
+		return languagesPercentageUsage
+
 	}
 }

@@ -7,4 +7,5 @@ export interface GitHubApi{
 	listRepositories: (currentUser: UserModel) => Promise<AxiosResponse<any, any>>
 	getRepositoryCommits: (currentUser: UserModel, owner: string, repositoryName: string) => Promise<AxiosResponse<any, any>>
 	getRepositoryPulls: (currentUser: UserModel, owner: string, repositoryName: string) => Promise<AxiosResponse<any, any>>
+	getMostUsedLanguages: (currentUser: UserModel, owner: string, repositoryName: string) => Promise<AxiosResponse<any, any>>
 }

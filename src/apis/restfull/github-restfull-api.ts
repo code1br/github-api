@@ -9,7 +9,8 @@ export class GitHubRestfullApi implements GitHubApi{
 			auth:{
 				username: currentUser.login,
 				password: currentUser.PAT	
-			}
+			},
+			validateStatus: () => true
 		})
 	}
 	
@@ -18,7 +19,8 @@ export class GitHubRestfullApi implements GitHubApi{
 			auth:{
 				username: currentUser.login,
 				password: currentUser.PAT	
-			}
+			},
+			validateStatus: () => true
 		})
 	}
 
@@ -27,7 +29,8 @@ export class GitHubRestfullApi implements GitHubApi{
 			auth:{
 				username: currentUser.login,
 				password: currentUser.PAT	
-			}
+			},
+			validateStatus: () => true
 		})
 	}
 
@@ -36,7 +39,8 @@ export class GitHubRestfullApi implements GitHubApi{
 			auth:{
 				username: currentUser.login,
 				password: currentUser.PAT	
-			}
+			},
+			validateStatus: () => true
 		})
 	}
 
@@ -45,7 +49,18 @@ export class GitHubRestfullApi implements GitHubApi{
 			auth:{
 				username: currentUser.login,
 				password: currentUser.PAT	
-			}
+			},
+			validateStatus: () => true
+		})
+	}
+
+	async getMostUsedLanguages(currentUser: UserModel, login: string, repositoryName: string){
+		return await githubApi.get(`/repos/${login}/${repositoryName}/languages`,{
+			auth:{
+				username: currentUser.login,
+				password: currentUser.PAT	
+			},
+			validateStatus: () => true
 		})
 	}
 	
