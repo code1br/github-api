@@ -17,11 +17,11 @@ const service = new UserService(api)
 describe('Follow a user', () => {
 	it('should be able to follow a user', () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		const usernameToFollow: string = "BBBBBBB"
+		const loginToFollow: string = "BBBBBBB"
 
 		const apiResponse = {
 			"status": 204
@@ -29,57 +29,57 @@ describe('Follow a user', () => {
 
 		followUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.followUser(currentUser,usernameToFollow)).resolves.not.toThrow()
+		expect(service.followUser(currentUser,loginToFollow)).resolves.not.toThrow()
 
-		expect(followUserSpy).toHaveBeenCalledWith(currentUser, usernameToFollow)
+		expect(followUserSpy).toHaveBeenCalledWith(currentUser, loginToFollow)
 	})
 
-	it('should not be able to follow a user with currentUser that contains empty username', () => {
+	it('should not be able to follow a user with currentUser that contains empty login', () => {
 		const currentUser: UserModel = {
-			username: "",
+			login: "",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		const usernameToFollow: string = "BBBBBBB"
+		const loginToFollow: string = "BBBBBBB"
 
-		expect(service.followUser(currentUser,usernameToFollow)).rejects.toThrow()
+		expect(service.followUser(currentUser,loginToFollow)).rejects.toThrow()
 
 		expect(followUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should not be able to follow a user with currentUser with empty PAT', () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: ""
 		}
 
-		const usernameToFollow: string = "BBBBBBB"
+		const loginToFollow: string = "BBBBBBB"
 
-		expect(service.followUser(currentUser,usernameToFollow)).rejects.toThrow()
+		expect(service.followUser(currentUser,loginToFollow)).rejects.toThrow()
 
 		expect(followUserSpy).not.toHaveBeenCalled()
 	})
 
-	it('should not be able to follow a user with empty username to follow', () => {
+	it('should not be able to follow a user with empty login to follow', () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		const usernameToFollow: string = ""
+		const loginToFollow: string = ""
 
-		expect(service.followUser(currentUser,usernameToFollow)).rejects.toThrow()
+		expect(service.followUser(currentUser,loginToFollow)).rejects.toThrow()
 
 		expect(followUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should rejects when api reponse status code is not 204', () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		const usernameToFollow: string = "BBBBBBB"
+		const loginToFollow: string = "BBBBBBB"
 
 		const apiResponse = {
 			"status": 400
@@ -87,20 +87,20 @@ describe('Follow a user', () => {
 
 		followUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.followUser(currentUser,usernameToFollow)).rejects.toThrow()
+		expect(service.followUser(currentUser,loginToFollow)).rejects.toThrow()
 
-		expect(followUserSpy).toHaveBeenCalledWith(currentUser, usernameToFollow)
+		expect(followUserSpy).toHaveBeenCalledWith(currentUser, loginToFollow)
 	})
 })
 
 describe('Unfollow a user', () => {
 	it('should be able to unfollow a user', () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		const usernameToUnfollow: string = "BBBBBBB"
+		const loginToUnfollow: string = "BBBBBBB"
 
 		const apiResponse = {
 			"status": 204
@@ -108,57 +108,57 @@ describe('Unfollow a user', () => {
 
 		unfollowUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.unfollowUser(currentUser,usernameToUnfollow)).resolves.not.toThrow()
+		expect(service.unfollowUser(currentUser,loginToUnfollow)).resolves.not.toThrow()
 
-		expect(unfollowUserSpy).toHaveBeenCalledWith(currentUser, usernameToUnfollow)
+		expect(unfollowUserSpy).toHaveBeenCalledWith(currentUser, loginToUnfollow)
 	})
 
-	it('should not be able to unfollow a user with currentUser that contains empty username', () => {
+	it('should not be able to unfollow a user with currentUser that contains empty login', () => {
 		const currentUser: UserModel = {
-			username: "",
+			login: "",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		const usernameToUnfollow: string = "BBBBBBB"
+		const loginToUnfollow: string = "BBBBBBB"
 
-		expect(service.unfollowUser(currentUser,usernameToUnfollow)).rejects.toThrow()
+		expect(service.unfollowUser(currentUser,loginToUnfollow)).rejects.toThrow()
 
 		expect(followUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should not be able to unfollow a user with currentUser with empty PAT', () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: ""
 		}
 
-		const usernameToUnfollow: string = "BBBBBBB"
+		const loginToUnfollow: string = "BBBBBBB"
 
-		expect(service.unfollowUser(currentUser,usernameToUnfollow)).rejects.toThrow()
+		expect(service.unfollowUser(currentUser,loginToUnfollow)).rejects.toThrow()
 
 		expect(followUserSpy).not.toHaveBeenCalled()
 	})
 	
-	it('should not be able to unfollow a user with empty username to follow', () => {
+	it('should not be able to unfollow a user with empty login to follow', () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		const usernameToUnfollow: string = ""
+		const loginToUnfollow: string = ""
 
-		expect(service.unfollowUser(currentUser,usernameToUnfollow)).rejects.toThrow()
+		expect(service.unfollowUser(currentUser,loginToUnfollow)).rejects.toThrow()
 
 		expect(followUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should rejects when api reponse status code is not 204', () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		const usernameToFollow: string = "BBBBBBB"
+		const loginToFollow: string = "BBBBBBB"
 
 		const apiResponse = {
 			"status": 400
@@ -166,9 +166,9 @@ describe('Unfollow a user', () => {
 
 		unfollowUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.unfollowUser(currentUser,usernameToFollow)).rejects.toThrow()
+		expect(service.unfollowUser(currentUser,loginToFollow)).rejects.toThrow()
 
-		expect(unfollowUserSpy).toHaveBeenCalledWith(currentUser, usernameToFollow)
+		expect(unfollowUserSpy).toHaveBeenCalledWith(currentUser, loginToFollow)
 	})
 })
 
@@ -177,7 +177,7 @@ describe('List repositories', () => {
 
 	it('should be able to list repositories', async () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 
@@ -208,9 +208,9 @@ describe('List repositories', () => {
 		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
 	})
 
-	it('should not be able to list repositories with currentUser that contains empty username', () => {
+	it('should not be able to list repositories with currentUser that contains empty login', () => {
 		const currentUser: UserModel = {
-			username: "",
+			login: "",
 			PAT: "aaaaaaaaaaa"
 		}
 
@@ -221,7 +221,7 @@ describe('List repositories', () => {
 
 	it('should not be able to list repositories with currentUser that contains empty PAT', () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: ""
 		}
 
@@ -232,7 +232,7 @@ describe('List repositories', () => {
 
 	it('should not be able to list repositories when status code is not 200', async () => {
 		const currentUser: UserModel = {
-			username: "AAAAAAAA",
+			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 

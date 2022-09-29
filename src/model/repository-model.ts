@@ -107,5 +107,6 @@ export interface GithubRepositoryModel{
 
 export interface RepositoryModel{
 	name: string,
+	owner: string,
 	private: boolean
 }

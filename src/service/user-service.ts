@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import { GitHubApi } from "../apis/github-api";
+import { GithubCommitModel } from "../model/commit-model";
 import { GithubRepositoryModel, RepositoryModel } from "../model/repository-model";
 import { UserModel } from "../model/user-model";
 
@@ -14,7 +15,7 @@ export class UserService{
 			throw new Error(`UserToFollow was not provided`)
 		}
 
-		if(!currentUser.username){
+		if(!currentUser.login){
 			throw new Error(`Username was not provided`)
 		}
 
@@ -35,7 +36,7 @@ export class UserService{
 			throw new Error(`Username was not provided`)
 		}
 
-		if(!currentUser.username){
+		if(!currentUser.login){
 			throw new Error(`Username was not provided`)
 		}
 
@@ -53,7 +54,7 @@ export class UserService{
 
 	async listRepositories(currentUser: UserModel){
 
-		if(!currentUser.username){
+		if(!currentUser.login){
 			throw new Error(`Username was not provided`)
 		}
 
@@ -74,6 +75,7 @@ export class UserService{
 		for(let repository of githubRepositories){
 			repositories.push({
 				name: repository.name,
+				owner: repository.owner.login,
 				private: repository.private
 			})
 		}
@@ -82,7 +84,7 @@ export class UserService{
 	}
 
 	async getAmountOfStars(currentUser: UserModel){
-		if(!currentUser.username){
+		if(!currentUser.login){
 			throw new Error(`Username was not provided`)
 		}
 
@@ -105,5 +107,46 @@ export class UserService{
 		}
 
 		return { stars: amountOfStars }
+	}
+	
+	async getAmountOfCommits(currentUser: UserModel){
+		if(!currentUser.login){
+			throw new Error(`Username was not provided`)
+		}
+
+		if(!currentUser.PAT){
+			throw new Error(`PAT was not provided`)
+		}
+
+		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories(currentUser)
+
+		let totalCommits = 0
+		let totalCommitsInCurrentYear = 0
+
+		const currentYear = new Date().getFullYear()
+
+
+
+		for (const repository of repositoriesToSearch){
+			if(!repository.private){
+				const commits: GithubCommitModel[] = await (await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)).data as GithubCommitModel[]
+
+				for (const commit of commits) {
+					if(commit.author.login == currentUser.login){
+						totalCommits++
+						
+						if(new Date(commit.commit.committer.date).getFullYear() == currentYear){
+							totalCommitsInCurrentYear++
+						}
+					}
+				}
+			}
+		}
+
+		return { 
+			commits_in_current_year: totalCommitsInCurrentYear,
+			total_commits: totalCommits
+		}
+	
 	}
 }

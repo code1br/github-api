@@ -1,4 +1,4 @@
 export interface UserModel{
-	username: string,
+	login: string,
 	PAT: string
 }

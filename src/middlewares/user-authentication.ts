@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import { Buffer } from 'buffer'
-import { githubApi } from '../config/github-api'
+import { githubApi } from '../config/github-api-config'
 import { UserModel } from '../model/user-model'
 
 let CURRENT_USER: UserModel = {
-	username: '',
+	login: '',
 	PAT: ''
 }
 
@@ -14,18 +14,18 @@ async function Authenticate(req: Request, res: Response, next: NextFunction){
 	if(headerAuth){
 		const auth = Buffer.from(headerAuth.split(' ')[1], 'base64').toString()
 
-		const username = auth.split(':')[0]
+		const login = auth.split(':')[0]
 		const token = auth.split(':')[1]
 
 		try{
-			await githubApi.get('/user', {
+			const result = await githubApi.get('/user', {
 				auth:{
-					username: username,
+					username: login,
 					password: token	
 				}
 			})
 
-			CURRENT_USER.username = username
+			CURRENT_USER.login = login
 			CURRENT_USER.PAT = token
 
 			return next()

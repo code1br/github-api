@@ -9,3 +9,4 @@ routerUsers
 	.delete('/users/following/:userToUnfollow', Authenticate, UserController.unfollowUser)
 	.get('/user/repositories', Authenticate, UserController.listRepositories)
 	.get('/user/stars', Authenticate, UserController.getAmountOfStars)
+	.get('/user/commits', Authenticate, UserController.getAmountOfCommits)
