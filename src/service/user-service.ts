@@ -127,7 +127,13 @@ export class UserService{
 
 		for (const repository of repositoriesToSearch){
 			if(!repository.private){
-				const commits: GithubCommitModel[] = await (await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)).data as GithubCommitModel[]
+				const result = await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)
+
+				if(result.status != 200){
+					throw new Error(`Response status different from expected ${result.status}`)
+				}
+
+				const commits: GithubCommitModel[] = await result.data as GithubCommitModel[]
 
 				for (const commit of commits) {
 					if(commit.author.login == currentUser.login){
