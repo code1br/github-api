@@ -80,4 +80,30 @@ export class UserService{
 
 		return repositories
 	}
+
+	async getAmountOfStars(currentUser: UserModel){
+		if(!currentUser.username){
+			throw new Error(`Username was not provided`)
+		}
+
+		if(!currentUser.PAT){
+			throw new Error(`PAT was not provided`)
+		}
+
+		const result = await this.GitHubApi.listRepositories(currentUser)
+		
+		if(result.status != 200){
+			throw new Error(`Response status different from expected ${result.status}`)
+		}
+
+		const githubRepositories = result.data as GithubRepositoryModel[]
+
+		let amountOfStars = 0
+
+		for(const repository of githubRepositories){
+			amountOfStars += repository.stargazers_count
+		}
+
+		return { stars: amountOfStars }
+	}
 }

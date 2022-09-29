@@ -8,3 +8,4 @@ routerUsers
 	.put('/users/following/:userToFollow', Authenticate, UserController.followUser)
 	.delete('/users/following/:userToUnfollow', Authenticate, UserController.unfollowUser)
 	.get('/user/repositories', Authenticate, UserController.listRepositories)
+	.get('/user/stars', Authenticate, UserController.getAmountOfStars)
