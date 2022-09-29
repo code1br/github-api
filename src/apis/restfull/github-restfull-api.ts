@@ -39,5 +39,14 @@ export class GitHubRestfullApi implements GitHubApi{
 			}
 		})
 	}
+
+	async getRepositoryPulls(currentUser: UserModel, login: string, repositoryName: string){
+		return await githubApi.get(`/repos/${login}/${repositoryName}/pulls?state=all`,{
+			auth:{
+				username: currentUser.login,
+				password: currentUser.PAT	
+			}
+		})
+	}
 	
 }
