@@ -35,7 +35,7 @@ export class GitHubRestfullApi implements GitHubApi{
 	}
 
 	async getRepositoryCommits(currentUser: UserModel, login: string, repositoryName: string){
-		return await githubApi.get(`/repos/${login}/${repositoryName}/commits`,{
+		return await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=1&per_page=100`,{
 			auth:{
 				username: currentUser.login,
 				password: currentUser.PAT	
