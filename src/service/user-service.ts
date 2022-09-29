@@ -22,7 +22,11 @@ export class UserService{
 			throw new Error(`PAT was not provided`)
 		}
 
-		await this.GitHubApi.followUser(currentUser, userToFollow)	
+		const result = await this.GitHubApi.followUser(currentUser, userToFollow)
+
+		if(result.status != 204){
+			throw new Error(`Response status different from expected ${result.status}`)
+		}
 	}
 
 	async unfollowUser(currentUser: UserModel, userToUnfollow: string){
@@ -39,7 +43,12 @@ export class UserService{
 			throw new Error(`PAT was not provided`)
 		}
 
-		await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)	
+		const result = await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)
+		
+		
+		if(result.status != 204){
+			throw new Error(`Response status different from expected ${result.status}`)
+		}
 	}
 
 	async listRepositories(currentUser: UserModel){

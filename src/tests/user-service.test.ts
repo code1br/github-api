@@ -23,6 +23,12 @@ describe('Follow a user', () => {
 
 		const usernameToFollow: string = "BBBBBBB"
 
+		const apiResponse = {
+			"status": 204
+		}
+
+		followUserSpy.mockResolvedValueOnce(apiResponse)
+
 		expect(service.followUser(currentUser,usernameToFollow)).resolves.not.toThrow()
 
 		expect(followUserSpy).toHaveBeenCalledWith(currentUser, usernameToFollow)
@@ -66,6 +72,25 @@ describe('Follow a user', () => {
 
 		expect(followUserSpy).not.toHaveBeenCalled()
 	})
+
+	it('should rejects when api reponse status code is not 204', () => {
+		const currentUser: UserModel = {
+			username: "AAAAAAAA",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const usernameToFollow: string = "BBBBBBB"
+
+		const apiResponse = {
+			"status": 400
+		}
+
+		followUserSpy.mockResolvedValueOnce(apiResponse)
+
+		expect(service.followUser(currentUser,usernameToFollow)).rejects.toThrow()
+
+		expect(followUserSpy).toHaveBeenCalledWith(currentUser, usernameToFollow)
+	})
 })
 
 describe('Unfollow a user', () => {
@@ -76,6 +101,12 @@ describe('Unfollow a user', () => {
 		}
 
 		const usernameToUnfollow: string = "BBBBBBB"
+
+		const apiResponse = {
+			"status": 204
+		}
+
+		unfollowUserSpy.mockResolvedValueOnce(apiResponse)
 
 		expect(service.unfollowUser(currentUser,usernameToUnfollow)).resolves.not.toThrow()
 
@@ -119,6 +150,25 @@ describe('Unfollow a user', () => {
 		expect(service.unfollowUser(currentUser,usernameToUnfollow)).rejects.toThrow()
 
 		expect(followUserSpy).not.toHaveBeenCalled()
+	})
+
+	it('should rejects when api reponse status code is not 204', () => {
+		const currentUser: UserModel = {
+			username: "AAAAAAAA",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const usernameToFollow: string = "BBBBBBB"
+
+		const apiResponse = {
+			"status": 400
+		}
+
+		unfollowUserSpy.mockResolvedValueOnce(apiResponse)
+
+		expect(service.unfollowUser(currentUser,usernameToFollow)).rejects.toThrow()
+
+		expect(unfollowUserSpy).toHaveBeenCalledWith(currentUser, usernameToFollow)
 	})
 })
 
