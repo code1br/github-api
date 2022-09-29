@@ -10,6 +10,11 @@ The project is a simple challenge to test my skills in consuming APIs, the Githu
 - [X] It must have 2 endpoints that allows the user to follow/unfollow another user.
 - [X] Unit testing must be implemented
 - [X] The project must have a documentation
+- [ ] Endpoint to list all the repositories of the authenticated user
+- [ ] Endpoint to get all the stars of the authenticated user
+- [ ] Endpoint to get the number of commits in the current year and total commits of the authenticated user
+- [ ] Endpoint to get the number of pull requests in the current year and total commits of the authenticated user
+- [ ] Endpoint to get the most used languages of the authenticated user
 
 * These requirements will be updated during the project development.
 
