@@ -123,6 +123,7 @@ export class UserService {
 
 		let totalCommits = 0
 		let totalCommitsInCurrentYear = 0
+		// let total = 0
 
 		const currentYear = new Date().getFullYear()
 
@@ -132,18 +133,24 @@ export class UserService {
 			if (result.status == 200) {
 				const commits: GithubCommitModel[] = await result.data as GithubCommitModel[] || []
 
-				for (const commit of commits) {
-					if (commit.author.login == currentUser.login) {
-						totalCommits++
+				// total += commits.length
 
-						if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
-							totalCommitsInCurrentYear++
+				for (const commit of commits) {
+					if(commit.author){
+						if (commit.author.login == currentUser.login) {
+							totalCommits++
+	
+							if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
+								totalCommitsInCurrentYear++
+							}
 						}
 					}
 				}
 			}
 
 		}
+
+		// console.log(total)
 
 		return {
 			commits_in_current_year: totalCommitsInCurrentYear,
