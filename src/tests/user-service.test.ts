@@ -799,3 +799,99 @@ describe('Get Pulls', () => {
 		expect(getRepositoryPullsSpy).not.toHaveBeenCalled()
 	})
 })
+
+describe('Get Most Used Languages', () => {
+	it('should be able to get most used languages', async () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const listRepositoriesApiResponse = [
+			{
+				name: 'repo1',
+				owner: {login: 'AAAAAAAA'},
+				private: false
+			},{
+				name: 'repo2',
+				owner: {login: 'AAAAAAAA'},
+				private: false
+			},{
+				name: 'repo3',
+				owner: {login: 'BBBBBBB'},
+				private: true
+			}
+		]
+
+		const mostUsedLanguagesApiResponse1 = {
+			data:{
+				"Java": 6854656,
+				"Python": 22326
+			},
+			status: 200
+		}
+
+		const mostUsedLanguagesApiResponse2 = {
+			data:{
+				"Ruby": 635,
+				"Typescript": 5641654
+			},
+			status: 200
+		}
+
+		const mostUsedLanguagesApiResponse3 = {
+			data:{
+				"Java": 3526156,
+				"Python": 6584135,
+				"Typescript": 8896544
+			},
+			status: 200
+		}
+
+		const expectedResult = {
+			"Java": 32.93,
+			"Python": 20.96,
+			"Typescript": 46.11,
+			"Ruby": 0.0
+		}
+
+		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+
+		getMostUsedLanguagesSpy.mockResolvedValueOnce(mostUsedLanguagesApiResponse1)
+		getMostUsedLanguagesSpy.mockResolvedValueOnce(mostUsedLanguagesApiResponse2)
+		getMostUsedLanguagesSpy.mockResolvedValueOnce(mostUsedLanguagesApiResponse3)
+
+		const result = await service.getMostUsedLanguages(currentUser)
+
+		expect(result).toEqual(expectedResult)
+		expect(listRepositoriesSpy).toHaveBeenCalledWith(currentUser)
+		expect(getMostUsedLanguagesSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
+		expect(getMostUsedLanguagesSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
+		expect(getMostUsedLanguagesSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
+		expect(getMostUsedLanguagesSpy).toHaveBeenCalledTimes(3)
+
+	})
+
+	it('should not be able to get most used languages with currentUser that contains empty login', () => {
+		const currentUser: UserModel = {
+			login: "",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		expect(service.getMostUsedLanguages(currentUser)).rejects.toThrow()
+
+		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+	})
+
+	it('should not be able to get most used languages with currentUser that contains empty PAT', () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: ""
+		}
+
+		expect(service.getMostUsedLanguages(currentUser)).rejects.toThrow()
+
+		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+	})
+})
