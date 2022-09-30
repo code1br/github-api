@@ -308,3 +308,271 @@ describe('Get Stars', () => {
 		expect(listRepositoriesSpy).not.toHaveBeenCalled()
 	})
 })
+
+describe('Get Commits', () => {
+	it('should be able to get the user number of commits in all repositories', async () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const listRepositoriesApiResponse = [
+			{
+				name: 'repo1',
+				owner: {login: 'AAAAAAAA'},
+				private: false
+			},{
+				name: 'repo2',
+				owner: {login: 'AAAAAAAA'},
+				private: false
+			},{
+				name: 'repo3',
+				owner: {login: 'BBBBBBB'},
+				private: true
+			}
+		]
+
+		const getRepositoryCommitsApiResponse1 = [
+			{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'BBB'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'BB'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'BB'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'BB'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'BB'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'BB'
+				}
+			}
+		]
+		const getRepositoryCommitsApiResponse2 = [
+			{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'BBB'
+				}
+			}
+		]
+		const getRepositoryCommitsApiResponse3 = [
+			{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2021-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'AAAAAAAA'
+				}
+			},{
+				commit:{
+					committer:{
+						date: '2022-05-22T18:45:42Z'
+					}
+				},
+				author:{
+					login: 'BBB'
+				}
+			}
+		]
+
+		const expectedResult = {
+			commits_in_current_year: 5,
+			total_commits: 13
+		}
+		
+		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+
+		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse1)
+		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse2)
+		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse3)
+
+		const result = await service.getNumberOfCommits(currentUser)
+
+		expect(result).toEqual(expectedResult)
+		expect(listRepositoriesSpy).toHaveBeenCalledWith(currentUser)
+		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
+		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
+		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
+		expect(getRepositoryCommitsSpy).toHaveBeenCalledTimes(3)
+
+	})
+
+	it('should not be able to get the user number of commits in all repositories with currentUser that contains empty login', () => {
+		const currentUser: UserModel = {
+			login: "",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		expect(service.getNumberOfCommits(currentUser)).rejects.toThrow()
+
+		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+	})
+
+	it('should not be able to get the user number of commits in all repositories with currentUser that contains empty PAT', () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: ""
+		}
+
+		expect(service.getNumberOfCommits(currentUser)).rejects.toThrow()
+
+		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+	})
+})

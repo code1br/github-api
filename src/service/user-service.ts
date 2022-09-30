@@ -107,18 +107,17 @@ export class UserService {
 			throw new Error(`PAT was not provided`)
 		}
 
-		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories(currentUser)
+		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories(currentUser)
 
 		let totalCommits = 0
 		let totalCommitsInCurrentYear = 0
-		// let total = 0
 
 		const currentYear = new Date().getFullYear()
 
 		for (const repository of repositoriesToSearch) {
 			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)
 
-			// total += commits.length
+			console.log(repository)
 
 			for (const commit of commits) {
 				if(commit.author){
@@ -133,8 +132,6 @@ export class UserService {
 			}
 			
 		}
-
-		// console.log(total)
 
 		return {
 			commits_in_current_year: totalCommitsInCurrentYear,
