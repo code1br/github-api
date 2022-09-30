@@ -63,15 +63,9 @@ export class UserService {
 			throw new Error(`PAT was not provided`)
 		}
 
-		const result = await this.GitHubApi.listRepositories(currentUser)
-
-		if (result.status != 200) {
-			throw new Error(`Response status different from expected ${result.status}`)
-		}
-
-		const githubRepositories = result.data as GithubRepositoryModel[]
-
 		let repositories: RepositoryModel[] = []
+
+		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories(currentUser)
 
 		for (let repository of githubRepositories) {
 			repositories.push({
@@ -80,8 +74,9 @@ export class UserService {
 				private: repository.private
 			})
 		}
-
+	
 		return repositories
+
 	}
 
 	async getAmountOfStars(currentUser: UserModel) {
@@ -93,13 +88,7 @@ export class UserService {
 			throw new Error(`PAT was not provided`)
 		}
 
-		const result = await this.GitHubApi.listRepositories(currentUser)
-
-		if (result.status != 200) {
-			throw new Error(`Response status different from expected ${result.status}`)
-		}
-
-		const githubRepositories = result.data as GithubRepositoryModel[]
+		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories(currentUser)
 
 		let amountOfStars = 0
 
