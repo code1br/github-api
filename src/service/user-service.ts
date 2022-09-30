@@ -117,8 +117,6 @@ export class UserService {
 		for (const repository of repositoriesToSearch) {
 			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)
 
-			console.log(repository)
-
 			for (const commit of commits) {
 				if(commit.author){
 					if (commit.author.login == currentUser.login) {
