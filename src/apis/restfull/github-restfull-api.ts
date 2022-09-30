@@ -127,7 +127,7 @@ export class GitHubRestfullApi implements GitHubApi{
 		return githubPulls
 	}
 
-	async getMostUsedLanguages(currentUser: UserModel, login: string, repositoryName: string){
+	async getUsedLanguages(currentUser: UserModel, login: string, repositoryName: string){
 		return await githubApi.get(`/repos/${login}/${repositoryName}/languages`,{
 			auth:{
 				username: currentUser.login,

@@ -176,7 +176,7 @@ export class UserService {
 
 	}
 
-	async getMostUsedLanguages(currentUser: UserModel) {
+	async getUsedLanguages(currentUser: UserModel) {
 		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
@@ -196,7 +196,7 @@ export class UserService {
 		let totalBytes: number = 0
 
 		for (const repository of repositoriesToSearch) {
-			const result = await this.GitHubApi.getMostUsedLanguages(currentUser, repository.owner, repository.name)
+			const result = await this.GitHubApi.getUsedLanguages(currentUser, repository.owner, repository.name)
 			const usedLanguages = result.data as LanguageType
 
 			if (result.status == 200) {

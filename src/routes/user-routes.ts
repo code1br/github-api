@@ -11,4 +11,4 @@ routerUsers
 	.get('/user/stars', Authenticate, UserController.getNumberOfStars)
 	.get('/user/commits', Authenticate, UserController.getNumberOfCommits)
 	.get('/user/pulls', Authenticate, UserController.getNumberOfPulls)
-	.get('/user/languages', Authenticate, UserController.getMostUsedLanguages)
+	.get('/user/languages', Authenticate, UserController.getUsedLanguages)

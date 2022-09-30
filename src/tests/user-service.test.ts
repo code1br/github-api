@@ -7,7 +7,7 @@ const unfollowUserSpy = jest.fn()
 const listRepositoriesSpy = jest.fn()
 const getRepositoryCommitsSpy = jest.fn()
 const getRepositoryPullsSpy = jest.fn()
-const getMostUsedLanguagesSpy = jest.fn()
+const getUsedLanguagesSpy = jest.fn()
 
 const api: GitHubApi = {
 	followUser: followUserSpy,
@@ -15,7 +15,7 @@ const api: GitHubApi = {
 	listRepositories: listRepositoriesSpy,
 	getRepositoryCommits: getRepositoryCommitsSpy, 
 	getRepositoryPulls: getRepositoryPullsSpy, 
-	getMostUsedLanguages: getMostUsedLanguagesSpy
+	getUsedLanguages: getUsedLanguagesSpy
 }
 
 const service = new UserService(api)
@@ -800,8 +800,8 @@ describe('Get Pulls', () => {
 	})
 })
 
-describe('Get Most Used Languages', () => {
-	it('should be able to get most used languages', async () => {
+describe('Get Used Languages', () => {
+	it('should be able to get used languages', async () => {
 		const currentUser: UserModel = {
 			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
@@ -823,7 +823,7 @@ describe('Get Most Used Languages', () => {
 			}
 		]
 
-		const mostUsedLanguagesApiResponse1 = {
+		const UsedLanguagesApiResponse1 = {
 			data:{
 				"Java": 6854656,
 				"Python": 22326
@@ -831,7 +831,7 @@ describe('Get Most Used Languages', () => {
 			status: 200
 		}
 
-		const mostUsedLanguagesApiResponse2 = {
+		const UsedLanguagesApiResponse2 = {
 			data:{
 				"Ruby": 635,
 				"Typescript": 5641654
@@ -839,7 +839,7 @@ describe('Get Most Used Languages', () => {
 			status: 200
 		}
 
-		const mostUsedLanguagesApiResponse3 = {
+		const UsedLanguagesApiResponse3 = {
 			data:{
 				"Java": 3526156,
 				"Python": 6584135,
@@ -857,40 +857,40 @@ describe('Get Most Used Languages', () => {
 
 		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
 
-		getMostUsedLanguagesSpy.mockResolvedValueOnce(mostUsedLanguagesApiResponse1)
-		getMostUsedLanguagesSpy.mockResolvedValueOnce(mostUsedLanguagesApiResponse2)
-		getMostUsedLanguagesSpy.mockResolvedValueOnce(mostUsedLanguagesApiResponse3)
+		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse1)
+		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse2)
+		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse3)
 
-		const result = await service.getMostUsedLanguages(currentUser)
+		const result = await service.getUsedLanguages(currentUser)
 
 		expect(result).toEqual(expectedResult)
 		expect(listRepositoriesSpy).toHaveBeenCalledWith(currentUser)
-		expect(getMostUsedLanguagesSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
-		expect(getMostUsedLanguagesSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
-		expect(getMostUsedLanguagesSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
+		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
+		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
+		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
 		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
-		expect(getMostUsedLanguagesSpy).toHaveBeenCalledTimes(3)
+		expect(getUsedLanguagesSpy).toHaveBeenCalledTimes(3)
 
 	})
 
-	it('should not be able to get most used languages with currentUser that contains empty login', () => {
+	it('should not be able to get used languages with currentUser that contains empty login', () => {
 		const currentUser: UserModel = {
 			login: "",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		expect(service.getMostUsedLanguages(currentUser)).rejects.toThrow()
+		expect(service.getUsedLanguages(currentUser)).rejects.toThrow()
 
 		expect(listRepositoriesSpy).not.toHaveBeenCalled()
 	})
 
-	it('should not be able to get most used languages with currentUser that contains empty PAT', () => {
+	it('should not be able to get used languages with currentUser that contains empty PAT', () => {
 		const currentUser: UserModel = {
 			login: "AAAAAAAA",
 			PAT: ""
 		}
 
-		expect(service.getMostUsedLanguages(currentUser)).rejects.toThrow()
+		expect(service.getUsedLanguages(currentUser)).rejects.toThrow()
 
 		expect(listRepositoriesSpy).not.toHaveBeenCalled()
 	})
