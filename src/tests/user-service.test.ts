@@ -578,3 +578,224 @@ describe('Get Commits', () => {
 		expect(getRepositoryCommitsSpy).not.toHaveBeenCalled()
 	})
 })
+
+describe('Get Pulls', () => {
+	it('should be able to get the user number of pulls in all repositories', async () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const listRepositoriesApiResponse = [
+			{
+				name: 'repo1',
+				owner: {login: 'AAAAAAAA'},
+				private: false
+			},{
+				name: 'repo2',
+				owner: {login: 'AAAAAAAA'},
+				private: false
+			},{
+				name: 'repo3',
+				owner: {login: 'BBBBBBB'},
+				private: true
+			}
+		]
+
+		const getRepositoryPullsApiResponse1 = [
+			{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			}
+		]
+		const getRepositoryPullsApiResponse2 = [
+			{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'AAAAAAAA'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			}
+		]
+		const getRepositoryPullsApiResponse3 = [
+			{
+				user:{
+					login: 'B'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2022-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			},{
+				user:{
+					login: 'B'
+				},
+				created_at: '2021-05-22T18:45:42Z',
+			}
+		]
+		
+		const expectedResult = {
+			pulls_in_current_year: 6,
+			total_pulls: 10
+		}
+		
+		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+
+		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse1)
+		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse2)
+		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse3)
+
+		const result = await service.getNumberOfPulls(currentUser)
+
+		expect(result).toEqual(expectedResult)
+		expect(listRepositoriesSpy).toHaveBeenCalledWith(currentUser)
+		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
+		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
+		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(currentUser, listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
+		expect(getRepositoryPullsSpy).toHaveBeenCalledTimes(3)
+
+	})
+
+	it('should not be able to get the user number of pulls in all repositories with currentUser that contains empty login', () => {
+		const currentUser: UserModel = {
+			login: "",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		expect(service.getNumberOfPulls(currentUser)).rejects.toThrow()
+
+		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+		expect(getRepositoryPullsSpy).not.toHaveBeenCalled()
+	})
+
+	it('should not be able to get the user number of pulls in all repositories with currentUser that contains empty PAT', () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: ""
+		}
+
+		expect(service.getNumberOfPulls(currentUser)).rejects.toThrow()
+
+		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+		expect(getRepositoryPullsSpy).not.toHaveBeenCalled()
+	})
+})
