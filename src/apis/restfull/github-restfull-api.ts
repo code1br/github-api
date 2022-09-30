@@ -31,7 +31,7 @@ export class GitHubRestfullApi implements GitHubApi{
 		const per_page = 100
 		let githubRepositories: GithubRepositoryModel[] = []
 		let page = 1
-
+		
 		let result = await githubApi.get(`/user/repos?page=${page}&per_page=${per_page}`,{
 			auth:{
 				username: currentUser.login,
@@ -63,13 +63,38 @@ export class GitHubRestfullApi implements GitHubApi{
 	}
 
 	async getRepositoryCommits(currentUser: UserModel, login: string, repositoryName: string){
-		return await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=1&per_page=100`,{
+		const per_page = 100
+		let githubCommits: GithubCommitModel[] = []
+		let page = 1
+
+		let result =  await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=${page}&per_page=${per_page}`,{
 			auth:{
 				username: currentUser.login,
 				password: currentUser.PAT	
 			},
 			validateStatus: () => true
 		})
+
+		while (result.data.length > 0) {
+			if (result.status == 200){
+				githubCommits = githubCommits.concat(result.data)
+			}else{
+				console.error(`Axios Response Error: ${result.status} --> ${result.statusText}`)
+				break
+			}
+			
+			page++
+
+			result =  await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=${page}&per_page=${per_page}`,{
+				auth:{
+					username: currentUser.login,
+					password: currentUser.PAT	
+				},
+				validateStatus: () => true
+			})
+		}
+
+		return githubCommits
 	}
 
 	async getRepositoryPulls(currentUser: UserModel, login: string, repositoryName: string){

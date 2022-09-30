@@ -117,26 +117,22 @@ export class UserService {
 		const currentYear = new Date().getFullYear()
 
 		for (const repository of repositoriesToSearch) {
-			const result = await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)
+			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)
 
-			if (result.status == 200) {
-				const commits: GithubCommitModel[] = await result.data as GithubCommitModel[] || []
+			// total += commits.length
 
-				// total += commits.length
+			for (const commit of commits) {
+				if(commit.author){
+					if (commit.author.login == currentUser.login) {
+						totalCommits++
 
-				for (const commit of commits) {
-					if(commit.author){
-						if (commit.author.login == currentUser.login) {
-							totalCommits++
-	
-							if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
-								totalCommitsInCurrentYear++
-							}
+						if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
+							totalCommitsInCurrentYear++
 						}
 					}
 				}
 			}
-
+			
 		}
 
 		// console.log(total)
