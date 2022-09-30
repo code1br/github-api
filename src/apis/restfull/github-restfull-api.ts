@@ -5,6 +5,7 @@ import { AxiosResponse } from "axios";
 import { GithubRepositoryModel } from "../../model/repository-model";
 import { resourceLimits } from "worker_threads";
 import { GithubCommitModel } from "../../model/commit-model";
+import { GithubPullModel } from "../../model/pull-model";
 
 export class GitHubRestfullApi implements GitHubApi{
 	async followUser(currentUser: UserModel, userToFollow: string){
@@ -48,9 +49,7 @@ export class GitHubRestfullApi implements GitHubApi{
 				break
 			}
 
-			page++
-
-			result = await githubApi.get(`/user/repos?page=${page}&per_page=${per_page}`,{
+			result = await githubApi.get(`/user/repos?page=${++page}&per_page=${per_page}`,{
 				auth:{
 					username: currentUser.login,
 					password: currentUser.PAT	
@@ -82,10 +81,8 @@ export class GitHubRestfullApi implements GitHubApi{
 				console.error(`Axios Response Error: ${result.status} --> ${result.statusText}`)
 				break
 			}
-			
-			page++
 
-			result =  await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=${page}&per_page=${per_page}`,{
+			result =  await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=${++page}&per_page=${per_page}`,{
 				auth:{
 					username: currentUser.login,
 					password: currentUser.PAT	
@@ -98,13 +95,36 @@ export class GitHubRestfullApi implements GitHubApi{
 	}
 
 	async getRepositoryPulls(currentUser: UserModel, login: string, repositoryName: string){
-		return await githubApi.get(`/repos/${login}/${repositoryName}/pulls?state=all`,{
+		const per_page = 100
+		let githubPulls: GithubPullModel[] = []
+		let page = 1
+
+		let result =  await githubApi.get(`/repos/${login}/${repositoryName}/pulls?state=all&page=${page}&per_page=${per_page}`,{
 			auth:{
 				username: currentUser.login,
 				password: currentUser.PAT	
 			},
 			validateStatus: () => true
 		})
+
+		while(result.data.length > 0){
+			if(result.status == 200){
+				githubPulls = githubPulls.concat(result.data)
+			}else{
+				console.error(`Axios Response Error: ${result.status} --> ${result.statusText}`)
+				break
+			}
+
+			result =  await githubApi.get(`/repos/${login}/${repositoryName}/pulls?state=all&page=${++page}&per_page=${per_page}`,{
+				auth:{
+					username: currentUser.login,
+					password: currentUser.PAT	
+				},
+				validateStatus: () => true
+			})
+		}
+
+		return githubPulls
 	}
 
 	async getMostUsedLanguages(currentUser: UserModel, login: string, repositoryName: string){

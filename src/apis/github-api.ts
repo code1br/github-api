@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios"
 import { GithubCommitModel } from "../model/commit-model"
+import { GithubPullModel } from "../model/pull-model"
 import { GithubRepositoryModel } from "../model/repository-model"
 import { UserModel } from "../model/user-model"
 
@@ -8,6 +9,6 @@ export interface GitHubApi{
 	unfollowUser: (currentUser: UserModel, userToFollow: string) => Promise<AxiosResponse<any, any>>
 	listRepositories: (currentUser: UserModel) => Promise<GithubRepositoryModel[]>
 	getRepositoryCommits: (currentUser: UserModel, owner: string, repositoryName: string) => Promise<GithubCommitModel[]>
-	getRepositoryPulls: (currentUser: UserModel, owner: string, repositoryName: string) => Promise<AxiosResponse<any, any>>
+	getRepositoryPulls: (currentUser: UserModel, owner: string, repositoryName: string) => Promise<GithubPullModel[]>
 	getMostUsedLanguages: (currentUser: UserModel, owner: string, repositoryName: string) => Promise<AxiosResponse<any, any>>
 }

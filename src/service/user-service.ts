@@ -161,20 +161,17 @@ export class UserService {
 		const currentYear = new Date().getFullYear()
 
 		for (const repository of repositoriesToSearch) {
-			const result = await this.GitHubApi.getRepositoryPulls(currentUser, repository.owner, repository.name)
+			const pulls: GithubPullModel[] = await this.GitHubApi.getRepositoryPulls(currentUser, repository.owner, repository.name)
 
-			if (result.status == 200) {
-				const pulls: GithubPullModel[] = await result.data as GithubPullModel[]
+			for (const pull of pulls) {
+				if (pull.user.login == currentUser.login) {
+					totalPulls++
 
-				for (const pull of pulls) {
-					if (pull.user.login == currentUser.login) {
-						totalPulls++
-
-						if (new Date(pull.created_at).getFullYear() == currentYear) {
-							totalPullsInCurrentYear++
-						}
+					if (new Date(pull.created_at).getFullYear() == currentYear) {
+						totalPullsInCurrentYear++
 					}
 				}
+		
 			}
 		}
 
@@ -222,7 +219,7 @@ export class UserService {
 		})
 
 		Object.entries(languagesBytesSize).forEach(([key, value]) => {
-			Object.assign(languagesPercentageUsage, { [key]: (value * 100 / totalBytes).toFixed(2) })
+			Object.assign(languagesPercentageUsage, { [key]: parseFloat((value * 100 / totalBytes).toFixed(2)) })
 		})
 
 		return languagesPercentageUsage
