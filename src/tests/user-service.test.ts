@@ -563,6 +563,7 @@ describe('Get Commits', () => {
 		expect(service.getNumberOfCommits(currentUser)).rejects.toThrow()
 
 		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+		expect(getRepositoryCommitsSpy).not.toHaveBeenCalled()
 	})
 
 	it('should not be able to get the user number of commits in all repositories with currentUser that contains empty PAT', () => {
@@ -574,5 +575,6 @@ describe('Get Commits', () => {
 		expect(service.getNumberOfCommits(currentUser)).rejects.toThrow()
 
 		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+		expect(getRepositoryCommitsSpy).not.toHaveBeenCalled()
 	})
 })
