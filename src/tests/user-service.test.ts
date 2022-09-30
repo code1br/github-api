@@ -5,11 +5,17 @@ import { UserService } from "../service/user-service"
 const followUserSpy = jest.fn()
 const unfollowUserSpy = jest.fn()
 const listRepositoriesSpy = jest.fn()
+const getRepositoryCommitsSpy = jest.fn()
+const getRepositoryPullsSpy = jest.fn()
+const getMostUsedLanguagesSpy = jest.fn()
 
 const api: GitHubApi = {
 	followUser: followUserSpy,
 	unfollowUser: unfollowUserSpy,
-	listRepositories: listRepositoriesSpy
+	listRepositories: listRepositoriesSpy,
+	getRepositoryCommits: getRepositoryCommitsSpy, 
+	getRepositoryPulls: getRepositoryPullsSpy, 
+	getMostUsedLanguages: getMostUsedLanguagesSpy
 }
 
 const service = new UserService(api)
@@ -173,8 +179,6 @@ describe('Unfollow a user', () => {
 })
 
 describe('List repositories', () => {
-	afterEach(jest.clearAllMocks)
-
 	it('should be able to list repositories', async () => {
 		const currentUser: UserModel = {
 			login: "AAAAAAAA",
@@ -184,20 +188,35 @@ describe('List repositories', () => {
 		const expectedResult = [
 			{
 				name: 'repo1',
+				owner: 'AAAAAAAA',
 				private: false
 			},{
 				name: 'repo2',
+				owner: 'AAAAAAAA',
 				private: false
 			},{
 				name: 'repo3',
+				owner: 'BBBBBBB',
 				private: true
 			}
 		]
 
-		const apiResponse = {
-			"status": 200,
-			"data": expectedResult
-		}
+
+		const apiResponse = [
+			{
+				name: 'repo1',
+				owner: {login: 'AAAAAAAA'},
+				private: false
+			},{
+				name: 'repo2',
+				owner: {login: 'AAAAAAAA'},
+				private: false
+			},{
+				name: 'repo3',
+				owner: {login: 'BBBBBBB'},
+				private: true
+			}
+		]
 
 		listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
 
@@ -229,21 +248,63 @@ describe('List repositories', () => {
 
 		expect(listRepositoriesSpy).not.toHaveBeenCalled()
 	})
+})
 
-	it('should not be able to list repositories when status code is not 200', async () => {
+describe('Get Stars', () => {
+	it('should be able to get the number of starts in all repositories', async () => {
 		const currentUser: UserModel = {
 			login: "AAAAAAAA",
 			PAT: "aaaaaaaaaaa"
 		}
 
-		const apiResponse = {
-			"status": 400
-		}
+		const apiResponse = [
+			{
+				name: 'repo1',
+				owner: {login: 'AAAAAAAA'},
+				private: false,
+				stargazers_count: 2
+			},{
+				name: 'repo2',
+				owner: {login: 'AAAAAAAA'},
+				private: false,
+				stargazers_count: 3
+			},{
+				name: 'repo3',
+				owner: {login: 'BBBBBBB'},
+				private: true,
+				stargazers_count: 4
+			}
+		]
+
+		const expectedResult = {stars: 9}
 
 		listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.listRepositories(currentUser)).rejects.toThrow()
+		const result = await service.getNumberOfStars(currentUser)
+		
+		expect(result).toEqual(expectedResult)
 		expect(listRepositoriesSpy).toHaveBeenCalledWith(currentUser)
 		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
+
+	})
+	it('should not be able to get the number of starts in all repositories with currentUser that contains empty login', () => {
+		const currentUser: UserModel = {
+			login: "",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		expect(service.getNumberOfStars(currentUser)).rejects.toThrow()
+
+		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+	})
+	it('should not be able to get the number of starts in all repositories with currentUser that contains empty PAT', () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: ""
+		}
+
+		expect(service.getNumberOfStars(currentUser)).rejects.toThrow()
+
+		expect(listRepositoriesSpy).not.toHaveBeenCalled()
 	})
 })

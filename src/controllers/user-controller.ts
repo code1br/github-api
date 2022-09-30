@@ -63,13 +63,13 @@ export class UserController{
 		}
 	}
 
-	static async getAmountOfStars(req: Request, res: Response){
+	static async getNumberOfStars(req: Request, res: Response){
 		try{
 			const currentUser = CURRENT_USER
 
 			const service = UserController.getService()
 
-			res.status(200).json(await service.getAmountOfStars(currentUser))
+			res.status(200).json(await service.getNumberOfStars(currentUser))
 		}catch(err){
 			if (err instanceof Error) {
 				res.status(400).send(err.message)
@@ -79,13 +79,13 @@ export class UserController{
 		}
 	}
 
-	static async getAmountOfCommits(req: Request, res: Response){
+	static async getNumberOfCommits(req: Request, res: Response){
 		try{
 			const currentUser = CURRENT_USER
 
 			const service = UserController.getService()
 
-			res.status(200).json(await service.getAmountOfCommits(currentUser))
+			res.status(200).json(await service.getNumberOfCommits(currentUser))
 		}catch(err){
 			if (err instanceof Error) {
 				res.status(400).send(err.message)
@@ -95,13 +95,13 @@ export class UserController{
 		}
 	}
 
-	static async getAmountOfPulls(req: Request, res: Response){
+	static async getNumberOfPulls(req: Request, res: Response){
 		try{
 			const currentUser = CURRENT_USER
 
 			const service = UserController.getService()
 
-			res.status(200).json(await service.getAmountOfPulls(currentUser))
+			res.status(200).json(await service.getNumberOfPulls(currentUser))
 		}catch(err){
 			if (err instanceof Error) {
 				res.status(400).send(err.message)

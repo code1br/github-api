@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import { GitHubApi } from "../apis/github-api";
 import { GithubCommitModel } from "../model/commit-model";
 import { GithubPullModel } from "../model/pull-model";
@@ -79,7 +78,7 @@ export class UserService {
 
 	}
 
-	async getAmountOfStars(currentUser: UserModel) {
+	async getNumberOfStars(currentUser: UserModel) {
 		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
@@ -90,16 +89,16 @@ export class UserService {
 
 		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories(currentUser)
 
-		let amountOfStars = 0
+		let numberOfStars = 0
 
 		for (const repository of githubRepositories) {
-			amountOfStars += repository.stargazers_count
+			numberOfStars += repository.stargazers_count
 		}
 
-		return { stars: amountOfStars }
+		return { stars: numberOfStars }
 	}
 
-	async getAmountOfCommits(currentUser: UserModel) {
+	async getNumberOfCommits(currentUser: UserModel) {
 		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
@@ -144,7 +143,7 @@ export class UserService {
 
 	}
 
-	async getAmountOfPulls(currentUser: UserModel) {
+	async getNumberOfPulls(currentUser: UserModel) {
 		if (!currentUser.login) {
 			throw new Error(`Username was not provided`)
 		}
