@@ -8,7 +8,7 @@ export default {
 	"info": {
 		"title": "Github data manipulation API",
 		"description": "This API manipulates the some endpoints of Github restfull API",
-		"contact":{
+		"contact": {
 			"name": "Eliezer Marques Mafra",
 			"email": "eliezermmafra@live.com"
 		},
@@ -21,7 +21,7 @@ export default {
 		}
 	],
 	"paths": {
-		"/users/following/{username}":{
+		"/users/following/{username}": {
 			"put": {
 				"summary": "Follow the username given in the param",
 				"description": "This route/method follow the username given in the param",
@@ -72,11 +72,201 @@ export default {
 					}
 				}
 			}
-		}
+		},
+		"/user/repositories": {
+			"get": {
+				"summary": "Get the authenticated user's repositories",
+				"description": "This route/method gets the authenticated user's private and public repositories",
+				"security": [{ "basicAuth": [] }],
+				"tags": ["Stats"],
+				"responses": {
+					"200": {
+						"description": "OK: Repositories returned successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Repository"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request: It was not possible to follow the given user"
+					},
+					"401": {
+						"description": "Unauthorized: Error on authentication"
+					}
+				}
+			}
+		},
+		"/user/stars": {
+			"get": {
+				"summary": "Get the authenticated user's repositories stars",
+				"description": "This route/method gets the authenticated user's repositories stars",
+				"security": [{ "basicAuth": [] }],
+				"tags": ["Stats"],
+				"responses": {
+					"200": {
+						"description": "OK: Stars sum returned successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Stars"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request: It was not possible to get the number of stars"
+					},
+					"401": {
+						"description": "Unauthorized: Error on authentication"
+					}
+				}
+			}
+		},
+		"/user/commits": {
+			"get": {
+				"summary": "Get the authenticated user's summed commits",
+				"description": "This route/method gets the authenticated user's summed commits in public and private repositories",
+				"security": [{ "basicAuth": [] }],
+				"tags": ["Stats"],
+				"responses": {
+					"200": {
+						"description": "OK: Commits sum returned successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Commits"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request: It was not possible to get the number of commits"
+					},
+					"401": {
+						"description": "Unauthorized: Error on authentication"
+					}
+				}
+			}
+		},
+		"/user/pulls": {
+			"get": {
+				"summary": "Get the authenticated user's summed pulls",
+				"description": "This route/method gets the authenticated user's summed pulls in public and private repositories",
+				"security": [{ "basicAuth": [] }],
+				"tags": ["Stats"],
+				"responses": {
+					"200": {
+						"description": "OK: Pulls sum returned successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Pulls"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request: It was not possible to get the number of pulls"
+					},
+					"401": {
+						"description": "Unauthorized: Error on authentication"
+					}
+				}
+			},
+		},
+		"/user/languages": {
+			"get": {
+				"summary": "Get the authenticated user's used languages",
+				"description": "This route/method gets the authenticated user's used languages in public and private repositories",
+				"security": [{ "basicAuth": [] }],
+				"tags": ["Stats"],
+				"responses": {
+					"200": {
+						"description": "OK: Used languages returned successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Languages"
+								},
+								"examples":{
+									"Response example": {
+										"value": {
+											"languageName1": 50,
+											"languageName2": 20,
+											"languageName3": 10,
+											"languageName4": 20
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request: It was not possible to get the used languages"
+					},
+					"401": {
+						"description": "Unauthorized: Error on authentication"
+					}
+				}
+			}
+
+		},
 	},
 	"components": {
-		"securitySchemes": {
-			"basicAuth": { "type": "http", "scheme": "basic" }
-		  }
-	}
+			"schemas": {
+				"Repository": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"name": { "type": "string" },
+							"owner": { "type": "string" },
+							"private": { "type": "boolean" }
+						}
+					}
+				},
+				"Stars": {
+					"type": "object",
+					"properties": {
+						"stars": { "type": "number" }
+
+					}
+				},
+				"Commits": {
+					"type": "object",
+					"properties": {
+						"commits_in_current_year": { "type": "number" },
+						"total_commits": { "type": "number" }
+					}
+
+				},
+				"Pulls": {
+					"type": "object",
+					"properties": {
+						"pulls_in_current_year": { "type": "number" },
+						"total_pulls": { "type": "number" }
+					}
+
+				},
+				"Languages": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "number"
+					}
+
+				},
+			},
+			"securitySchemes": {
+				"basicAuth": { "type": "http", "scheme": "basic" }
+			}
+		}
+
 }
