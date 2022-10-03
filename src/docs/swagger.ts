@@ -1,7 +1,6 @@
 import 'dotenv/config'
 
 const server_host = process.env.SERVER_HOST || 'localhost'
-const server_port = parseInt(process.env.SERVER_PORT || '6060')
 
 export default {
 	"openapi": "3.0.0",
@@ -16,7 +15,7 @@ export default {
 	},
 	"servers": [
 		{
-			"url": `http://${server_host}:${server_port}`,
+			"url": `${server_host}`,
 			"description": "Test API"
 		}
 	],
