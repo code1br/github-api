@@ -7,4 +7,3 @@ export const routerUsers = express.Router()
 routerUsers
 	.put('/users/following/:userToFollow', Authenticate, UserController.followUser)
 	.delete('/users/following/:userToUnfollow', Authenticate, UserController.unfollowUser)
-	.get('/testing', () => {console.log('Testing')})
