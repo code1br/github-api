@@ -6,7 +6,7 @@ export default {
 	"openapi": "3.0.0",
 	"info": {
 		"title": "Github data manipulation API",
-		"description": "This API manipulates the some endpoints of Github restfull API",
+		"description": "This API manipulates the some endpoints of Github restfull API, remember to authenticate yourself with your username and PAT from Github.com",
 		"contact":{
 			"name": "Eliezer Marques Mafra",
 			"email": "eliezermmafra@live.com"

@@ -41,7 +41,8 @@ You can make requests to the API with the following base URL: <kbd>https://githu
 
 ```shell
 PORT = <The port where your application will be run>
-SERVER_HOST = <The ip address where your application will be run>
+SERVER_HOST = <The host where your application will be run>
+SERVER_IP = <The ip address where your application will be run>
 ```
 
 ## ⚒ Testing
