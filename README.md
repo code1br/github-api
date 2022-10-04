@@ -22,6 +22,12 @@ The project is a simple challenge to test my skills in consuming APIs, the Githu
 
 The project documentation was done using Swagger and can be accessed on the route: <kbd>/api-docs</kbd>
 
+You can also access the documentation on a public domain here: [Swagger documentation](https://github-api-production.up.railway.app/api-docs/)
+
+## 🎯 Use without installation
+
+You can make requests to the API with the following base URL: <kbd>https://github-api-production.up.railway.app</kbd>
+
 ## ⚙️ Installation
 1. Clone the repository
 1. Change to the repository directory
