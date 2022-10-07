@@ -8,6 +8,7 @@ const listRepositoriesSpy = jest.fn()
 const getRepositoryCommitsSpy = jest.fn()
 const getRepositoryPullsSpy = jest.fn()
 const getUsedLanguagesSpy = jest.fn()
+const searchUserSpy = jest.fn()
 
 const api: GitHubApi = {
 	followUser: followUserSpy,
@@ -15,7 +16,8 @@ const api: GitHubApi = {
 	listRepositories: listRepositoriesSpy,
 	getRepositoryCommits: getRepositoryCommitsSpy, 
 	getRepositoryPulls: getRepositoryPullsSpy, 
-	getUsedLanguages: getUsedLanguagesSpy
+	getUsedLanguages: getUsedLanguagesSpy,
+	searchUser: searchUserSpy
 }
 
 const service = new UserService(api)
@@ -893,5 +895,84 @@ describe('Get Used Languages', () => {
 		expect(service.getUsedLanguages(currentUser)).rejects.toThrow()
 
 		expect(listRepositoriesSpy).not.toHaveBeenCalled()
+	})
+})
+
+describe('Get a user', () => {
+	it('should be able to get a user', () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const usernameToGet: string = "BBBBBBB"
+
+		const apiResponse = {
+			"status": 200
+		}
+
+		searchUserSpy.mockResolvedValueOnce(apiResponse)
+
+		expect(service.searchUser(currentUser,usernameToGet)).resolves.not.toThrow()
+
+		expect(searchUserSpy).toHaveBeenCalledWith(currentUser, usernameToGet)
+	})
+
+	it('should not be able to get a user with currentUser that contains empty login', () => {
+		const currentUser: UserModel = {
+			login: "",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const usernameToGet: string = "BBBBBBB"
+
+		expect(service.searchUser(currentUser,usernameToGet)).rejects.toThrow()
+
+		expect(searchUserSpy).not.toHaveBeenCalled()
+	})
+
+	it('should not be able to get a user with currentUser with empty PAT', () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: ""
+		}
+
+		const usernameToGet: string = "BBBBBBB"
+
+		expect(service.searchUser(currentUser,usernameToGet)).rejects.toThrow()
+
+		expect(searchUserSpy).not.toHaveBeenCalled()
+	})
+
+	it('should not be able to get a user with empty login to get', () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const usernameToGet: string = ""
+
+		expect(service.searchUser(currentUser,usernameToGet)).rejects.toThrow()
+
+		expect(searchUserSpy).not.toHaveBeenCalled()
+	})
+
+	it('should rejects when api reponse status code is not 200', () => {
+		const currentUser: UserModel = {
+			login: "AAAAAAAA",
+			PAT: "aaaaaaaaaaa"
+		}
+
+		const usernameToGet: string = "BBBBBBB"
+
+		const apiResponse = {
+			"status": 400
+		}
+
+		searchUserSpy.mockResolvedValueOnce(apiResponse)
+
+		expect(service.searchUser(currentUser,usernameToGet)).rejects.toThrow()
+
+		expect(searchUserSpy).toHaveBeenCalledWith(currentUser, usernameToGet)
 	})
 })
