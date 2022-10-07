@@ -219,4 +219,26 @@ export class UserService {
 		return languagesPercentageUsage
 
 	}
+
+	async searchUser(currentUser: UserModel, username: string){
+		if (!username) {
+			throw new Error(`UserToSearch was not provided`)
+		}
+
+		if (!currentUser.login) {
+			throw new Error(`Username was not provided`)
+		}
+
+		if (!currentUser.PAT) {
+			throw new Error(`PAT was not provided`)
+		}
+		
+		const result =  await this.GitHubApi.searchUser(currentUser, username)
+
+		if (result.status != 200) {
+			throw new Error(`Response status different from expected ${result.status}`)
+		}else{
+			return result.data
+		}
+	}
 }

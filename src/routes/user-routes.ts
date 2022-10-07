@@ -12,3 +12,4 @@ routerUsers
 	.get('/user/commits', Authenticate, UserController.getNumberOfCommits)
 	.get('/user/pulls', Authenticate, UserController.getNumberOfPulls)
 	.get('/user/languages', Authenticate, UserController.getUsedLanguages)
+	.get('/user/:userToSearch', Authenticate, UserController.searchUser)
