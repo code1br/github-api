@@ -10,12 +10,23 @@ The project is a simple challenge to test my skills in consuming APIs, the Githu
 - [X] It must have 2 endpoints that allows the user to follow/unfollow another user.
 - [X] Unit testing must be implemented
 - [X] The project must have a documentation
+- [ ] Endpoint to list all the repositories of the authenticated user
+- [ ] Endpoint to get all the stars of the authenticated user
+- [ ] Endpoint to get the number of commits in the current year and total commits of the authenticated user
+- [ ] Endpoint to get the number of pull requests in the current year and total commits of the authenticated user
+- [ ] Endpoint to get the most used languages of the authenticated user
 
 * These requirements will be updated during the project development.
 
 ## 📜 Documentation
 
 The project documentation was done using Swagger and can be accessed on the route: <kbd>/api-docs</kbd>
+
+You can also access the documentation on a public domain here: [Swagger documentation](https://github-api-production.up.railway.app/api-docs/)
+
+## 🎯 Use without installation
+
+You can make requests to the API with the following base URL: <kbd>https://github-api-production.up.railway.app</kbd>
 
 ## ⚙️ Installation
 1. Clone the repository
@@ -29,8 +40,9 @@ The project documentation was done using Swagger and can be accessed on the rout
 1. In the following line, a brief explanation of each environment variable will be presented.
 
 ```shell
-SERVER_PORT = <The port where your application will be run>
-SERVER_HOST = <The ip address where your application will be run>
+PORT = <The port where your application will be run>
+SERVER_HOST = <The host where your application will be run>
+SERVER_IP = <The ip address where your application will be run>
 ```
 
 ## ⚒ Testing
