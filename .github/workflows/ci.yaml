@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: 
+      - 'main'
+  pull_request:
+    branches: 
+      - 'main'
+    types:
+      - closed
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Refreshing code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+        
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refreshing code
+        uses: actions/checkout@v3
+        with:
+          clean: false
+
+      - name: Install Railway
+        run: npm i -g @railway/cli
+
+      - name: Deploy on Railway
+        run: railway up
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
