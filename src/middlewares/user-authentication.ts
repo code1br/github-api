@@ -8,20 +8,20 @@ let CURRENT_USER: UserModel = {
 	PAT: ''
 }
 
-async function Authenticate(req: Request, res: Response, next: NextFunction){
+async function Authenticate(req: Request, res: Response, next: NextFunction) {
 	const headerAuth = req.headers.authorization
 
-	if(headerAuth){
+	if (headerAuth) {
 		const auth = Buffer.from(headerAuth.split(' ')[1], 'base64').toString()
 
 		const login = auth.split(':')[0]
 		const token = auth.split(':')[1]
 
-		try{
+		try {
 			const result = await githubApi.get('/user', {
-				auth:{
+				auth: {
 					username: login,
-					password: token	
+					password: token
 				}
 			})
 
@@ -29,11 +29,11 @@ async function Authenticate(req: Request, res: Response, next: NextFunction){
 			CURRENT_USER.PAT = token
 
 			return next()
-		}catch(err){
+		} catch (err) {
 			res.status(401).send(`Error while authenticating: ${err}`)
 		}
 
-	}else{
+	} else {
 		res.status(401).send(`Basic auth required`)
 	}
 

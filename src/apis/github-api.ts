@@ -4,7 +4,7 @@ import { GithubPullModel } from "../model/pull-model"
 import { GithubRepositoryModel } from "../model/repository-model"
 import { GithubUserModel, UserModel } from "../model/user-model"
 
-export interface GitHubApi{
+export interface GitHubApi {
 	followUser: (userToFollow: string) => Promise<AxiosResponse<any, any>>
 	unfollowUser: (userToFollow: string) => Promise<AxiosResponse<any, any>>
 	listRepositories: () => Promise<GithubRepositoryModel[]>

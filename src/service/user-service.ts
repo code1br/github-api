@@ -47,7 +47,7 @@ export class UserService {
 				private: repository.private
 			})
 		}
-	
+
 		return repositories
 
 	}
@@ -76,7 +76,7 @@ export class UserService {
 			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(repository.owner, repository.name)
 
 			for (const commit of commits) {
-				if(commit.author){
+				if (commit.author) {
 					if (commit.author.login == CURRENT_USER.login) {
 						totalCommits++
 
@@ -86,7 +86,7 @@ export class UserService {
 					}
 				}
 			}
-			
+
 		}
 
 		return {
@@ -115,7 +115,7 @@ export class UserService {
 						totalPullsInCurrentYear++
 					}
 				}
-		
+
 			}
 		}
 
@@ -162,16 +162,16 @@ export class UserService {
 
 	}
 
-	async searchUser(username: string){
+	async searchUser(username: string) {
 		if (!username) {
 			throw new Error(`UserToSearch was not provided`)
 		}
 
-		const result =  await this.GitHubApi.searchUser(username)
+		const result = await this.GitHubApi.searchUser(username)
 
 		if (result.status != 200) {
 			throw new Error(`Response status different from expected ${result.status}`)
-		}else{
+		} else {
 			return result.data
 		}
 	}
