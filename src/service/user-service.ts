@@ -1,4 +1,5 @@
 import { GitHubApi } from "../apis/github-api";
+import { CURRENT_USER } from "../middlewares/user-authentication";
 import { GithubCommitModel } from "../model/commit-model";
 import { GithubPullModel } from "../model/pull-model";
 import { GithubRepositoryModel, RepositoryModel } from "../model/repository-model";
@@ -9,42 +10,24 @@ export class UserService {
 		private GitHubApi: GitHubApi
 	) { }
 
-	async followUser(currentUser: UserModel, userToFollow: string) {
-
+	async followUser(userToFollow: string) {
 		if (!userToFollow) {
 			throw new Error(`UserToFollow was not provided`)
 		}
 
-		if (!currentUser.login) {
-			throw new Error(`Username was not provided`)
-		}
-
-		if (!currentUser.PAT) {
-			throw new Error(`PAT was not provided`)
-		}
-
-		const result = await this.GitHubApi.followUser(currentUser, userToFollow)
+		const result = await this.GitHubApi.followUser(userToFollow)
 
 		if (result.status != 204) {
 			throw new Error(`Response status different from expected ${result.status}`)
 		}
 	}
 
-	async unfollowUser(currentUser: UserModel, userToUnfollow: string) {
-
+	async unfollowUser(userToUnfollow: string) {
 		if (!userToUnfollow) {
 			throw new Error(`Username was not provided`)
 		}
 
-		if (!currentUser.login) {
-			throw new Error(`Username was not provided`)
-		}
-
-		if (!currentUser.PAT) {
-			throw new Error(`PAT was not provided`)
-		}
-
-		const result = await this.GitHubApi.unfollowUser(currentUser, userToUnfollow)
+		const result = await this.GitHubApi.unfollowUser(userToUnfollow)
 
 
 		if (result.status != 204) {
@@ -52,19 +35,10 @@ export class UserService {
 		}
 	}
 
-	async listRepositories(currentUser: UserModel) {
-
-		if (!currentUser.login) {
-			throw new Error(`Username was not provided`)
-		}
-
-		if (!currentUser.PAT) {
-			throw new Error(`PAT was not provided`)
-		}
-
+	async listRepositories() {
 		let repositories: RepositoryModel[] = []
 
-		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories(currentUser)
+		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories()
 
 		for (let repository of githubRepositories) {
 			repositories.push({
@@ -78,16 +52,8 @@ export class UserService {
 
 	}
 
-	async getNumberOfStars(currentUser: UserModel) {
-		if (!currentUser.login) {
-			throw new Error(`Username was not provided`)
-		}
-
-		if (!currentUser.PAT) {
-			throw new Error(`PAT was not provided`)
-		}
-
-		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories(currentUser)
+	async getNumberOfStars() {
+		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories()
 
 		let numberOfStars = 0
 
@@ -98,16 +64,8 @@ export class UserService {
 		return { stars: numberOfStars }
 	}
 
-	async getNumberOfCommits(currentUser: UserModel) {
-		if (!currentUser.login) {
-			throw new Error(`Username was not provided`)
-		}
-
-		if (!currentUser.PAT) {
-			throw new Error(`PAT was not provided`)
-		}
-
-		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories(currentUser)
+	async getNumberOfCommits() {
+		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories()
 
 		let totalCommits = 0
 		let totalCommitsInCurrentYear = 0
@@ -115,11 +73,11 @@ export class UserService {
 		const currentYear = new Date().getFullYear()
 
 		for (const repository of repositoriesToSearch) {
-			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(currentUser, repository.owner, repository.name)
+			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(repository.owner, repository.name)
 
 			for (const commit of commits) {
 				if(commit.author){
-					if (commit.author.login == currentUser.login) {
+					if (commit.author.login == CURRENT_USER.login) {
 						totalCommits++
 
 						if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
@@ -138,16 +96,8 @@ export class UserService {
 
 	}
 
-	async getNumberOfPulls(currentUser: UserModel) {
-		if (!currentUser.login) {
-			throw new Error(`Username was not provided`)
-		}
-
-		if (!currentUser.PAT) {
-			throw new Error(`PAT was not provided`)
-		}
-
-		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories(currentUser)
+	async getNumberOfPulls() {
+		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories()
 
 		let totalPulls = 0
 		let totalPullsInCurrentYear = 0
@@ -155,10 +105,10 @@ export class UserService {
 		const currentYear = new Date().getFullYear()
 
 		for (const repository of repositoriesToSearch) {
-			const pulls: GithubPullModel[] = await this.GitHubApi.getRepositoryPulls(currentUser, repository.owner, repository.name)
+			const pulls: GithubPullModel[] = await this.GitHubApi.getRepositoryPulls(repository.owner, repository.name)
 
 			for (const pull of pulls) {
-				if (pull.user.login == currentUser.login) {
+				if (pull.user.login == CURRENT_USER.login) {
 					totalPulls++
 
 					if (new Date(pull.created_at).getFullYear() == currentYear) {
@@ -176,18 +126,10 @@ export class UserService {
 
 	}
 
-	async getUsedLanguages(currentUser: UserModel) {
-		if (!currentUser.login) {
-			throw new Error(`Username was not provided`)
-		}
-
-		if (!currentUser.PAT) {
-			throw new Error(`PAT was not provided`)
-		}
-
+	async getUsedLanguages() {
 		type LanguageType = { [key: string]: number }
 
-		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories(currentUser)
+		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories()
 
 		let languagesBytesSize: LanguageType = {}
 
@@ -196,7 +138,7 @@ export class UserService {
 		let totalBytes: number = 0
 
 		for (const repository of repositoriesToSearch) {
-			const result = await this.GitHubApi.getUsedLanguages(currentUser, repository.owner, repository.name)
+			const result = await this.GitHubApi.getUsedLanguages(repository.owner, repository.name)
 			const usedLanguages = result.data as LanguageType
 
 			if (result.status == 200) {
@@ -220,20 +162,12 @@ export class UserService {
 
 	}
 
-	async searchUser(currentUser: UserModel, username: string){
+	async searchUser(username: string){
 		if (!username) {
 			throw new Error(`UserToSearch was not provided`)
 		}
 
-		if (!currentUser.login) {
-			throw new Error(`Username was not provided`)
-		}
-
-		if (!currentUser.PAT) {
-			throw new Error(`PAT was not provided`)
-		}
-		
-		const result =  await this.GitHubApi.searchUser(currentUser, username)
+		const result =  await this.GitHubApi.searchUser(username)
 
 		if (result.status != 200) {
 			throw new Error(`Response status different from expected ${result.status}`)

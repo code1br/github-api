@@ -5,58 +5,40 @@ import { CURRENT_USER } from "../middlewares/user-authentication";
 import { AxiosResponse } from "axios";
 
 export class UserController {
-	private static getService() {
+	private getService() {
 		return new UserService(new GitHubRestfullApi)
 	}
 
 	static async followUser(req: Request, res: Response) {
 		try {
-			const currentUser = CURRENT_USER
 			const userToFollow = req.params.userToFollow
 
-			const service = UserController.getService()
-
-			await service.followUser(currentUser, userToFollow)
+			await new UserController().getService().followUser(userToFollow)
 
 			res.status(204).send()
 		} catch (err) {
-			if (err instanceof Error) {
-				res.status(400).send(err.message)
-			} else {
-				res.status(400).send("Unexpected error !!!")
-			}
+			this.handleError(err, res)
 		}
 	}
 
 	static async unfollowUser(req: Request, res: Response) {
 		try {
-			const currentUser = CURRENT_USER
 			const userToUnfollow = req.params.userToUnfollow
 
-			const service = UserController.getService()
-
-			await service.unfollowUser(currentUser, userToUnfollow)
+			await new UserController().getService().unfollowUser(userToUnfollow)
 
 			res.status(204).send()
 		} catch (err) {
-			if (err instanceof Error) {
-				res.status(400).send(err.message)
-			} else {
-				res.status(400).send("Unexpected error !!!")
-			}
+			this.handleError(err, res)
 		}
 	}
 
 	static async listRepositories(req: Request, res: Response) {
 		try {
-			const currentUser = CURRENT_USER
-
-			const service = UserController.getService()
-
-			res.status(200).json(await service.listRepositories(currentUser))
+			res.status(200).json(await new UserController().getService().listRepositories())
 		} catch (err) {
 			if (err instanceof Error) {
-				res.status(400).send(err.message)
+				res.status(400).send(err.stack)
 			} else {
 				res.status(400).send("Unexpected error !!!")
 			}
@@ -65,83 +47,54 @@ export class UserController {
 
 	static async getNumberOfStars(req: Request, res: Response) {
 		try {
-			const currentUser = CURRENT_USER
-
-			const service = UserController.getService()
-
-			res.status(200).json(await service.getNumberOfStars(currentUser))
+			res.status(200).json(await new UserController().getService().getNumberOfStars())
 		} catch (err) {
-			if (err instanceof Error) {
-				res.status(400).send(err.message)
-			} else {
-				res.status(400).send("Unexpected error !!!")
-			}
+			this.handleError(err, res)
 		}
 	}
 
 	static async getNumberOfCommits(req: Request, res: Response) {
 		try {
-			const currentUser = CURRENT_USER
-
-			const service = UserController.getService()
-
-			res.status(200).json(await service.getNumberOfCommits(currentUser))
+			res.status(200).json(await new UserController().getService().getNumberOfCommits())
 		} catch (err) {
-			if (err instanceof Error) {
-				res.status(400).send(err.message)
-			} else {
-				res.status(400).send("Unexpected error !!!")
-			}
+			this.handleError(err, res)
 		}
 	}
 
 	static async getNumberOfPulls(req: Request, res: Response) {
 		try {
-			const currentUser = CURRENT_USER
-
-			const service = UserController.getService()
-
-			res.status(200).json(await service.getNumberOfPulls(currentUser))
+			res.status(200).json(await new UserController().getService().getNumberOfPulls())
 		} catch (err) {
-			if (err instanceof Error) {
-				res.status(400).send(err.message)
-			} else {
-				res.status(400).send("Unexpected error !!!")
-			}
+			this.handleError(err, res)
 		}
 	}
 
 	static async getUsedLanguages(req: Request, res: Response) {
 		try {
-			const currentUser = CURRENT_USER
-
-			const service = UserController.getService()
-
-			res.status(200).json(await service.getUsedLanguages(currentUser))
+			res.status(200).json(await new UserController().getService().getUsedLanguages())
 		} catch (err) {
-			if (err instanceof Error) {
-				res.status(400).send(err.message)
-			} else {
-				res.status(400).send("Unexpected error !!!")
-			}
+			this.handleError(err, res)
 		}
 	}
 
 	static async searchUser(req: Request, res: Response) {
 		try {
-			const currentUser = CURRENT_USER
 			const userToSearch = req.params.userToSearch
 
-			const service = UserController.getService()
-
-			res.status(200).send(await service.searchUser(currentUser, userToSearch))
+			res.status(200).send(await new UserController().getService().searchUser(userToSearch))
 		} catch (err) {
-			if (err instanceof Error) {
-				res.status(400).send(err.message)
-			} else {
-				res.status(400).send("Unexpected error !!!")
-			}
+			this.handleError(err, res)
+		}
+	}
 
+	static handleError(err: unknown, res: Response) {
+		console.log('handleError:')
+		console.log(err)
+		console.log(res)
+		if (err instanceof Error) {
+			res.status(400).send(err.message)
+		} else {
+			res.status(400).send("Unexpected error !!!")
 		}
 	}
 }

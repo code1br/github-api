@@ -1,45 +1,38 @@
 import { githubApi } from "../../config/github-api-config";
 import { GitHubApi } from "../github-api";
-import { GithubUserModel, UserModel } from "../../model/user-model";
-import { AxiosResponse } from "axios";
 import { GithubRepositoryModel } from "../../model/repository-model";
-import { resourceLimits } from "worker_threads";
 import { GithubCommitModel } from "../../model/commit-model";
 import { GithubPullModel } from "../../model/pull-model";
+import { CURRENT_USER } from "../../middlewares/user-authentication";
 
 export class GitHubRestfullApi implements GitHubApi{
-	async followUser(currentUser: UserModel, userToFollow: string){
-		return await githubApi.put(`/user/following/${userToFollow}`, {}, {
+	GitHubBasicAuth: {auth: {username: string, password: string}, validateStatus: () => boolean};
+
+	constructor(){
+		this.GitHubBasicAuth = {
 			auth:{
-				username: currentUser.login,
-				password: currentUser.PAT	
+				username: CURRENT_USER.login,
+				password: CURRENT_USER.PAT	
 			},
 			validateStatus: () => true
-		})
+		}
 	}
 	
-	async unfollowUser(currentUser: UserModel, userToUnfollow: string){
-		return await githubApi.delete(`/user/following/${userToUnfollow}`, {
-			auth:{
-				username: currentUser.login,
-				password: currentUser.PAT	
-			},
-			validateStatus: () => true
-		})
+
+	async followUser(userToFollow: string){
+		return await githubApi.put(`/user/following/${userToFollow}`, {}, this.GitHubBasicAuth)
+	}
+	
+	async unfollowUser(userToUnfollow: string){
+		return await githubApi.delete(`/user/following/${userToUnfollow}`, this.GitHubBasicAuth)
 	}
 
-	async listRepositories(currentUser: UserModel){
+	async listRepositories(){
 		const per_page = 100
 		let githubRepositories: GithubRepositoryModel[] = []
 		let page = 1
 		
-		let result = await githubApi.get(`/user/repos?page=${page}&per_page=${per_page}`,{
-			auth:{
-				username: currentUser.login,
-				password: currentUser.PAT	
-			},
-			validateStatus: () => true
-		})
+		let result = await githubApi.get(`/user/repos?page=${page}&per_page=${per_page}`, this.GitHubBasicAuth)
 
 		while(result.data.length > 0){
 			if(result.status == 200){
@@ -49,30 +42,18 @@ export class GitHubRestfullApi implements GitHubApi{
 				break
 			}
 
-			result = await githubApi.get(`/user/repos?page=${++page}&per_page=${per_page}`,{
-				auth:{
-					username: currentUser.login,
-					password: currentUser.PAT	
-				},
-				validateStatus: () => true
-			})
+			result = await githubApi.get(`/user/repos?page=${++page}&per_page=${per_page}`, this.GitHubBasicAuth)
 		}
 
 		return githubRepositories
 	}
 
-	async getRepositoryCommits(currentUser: UserModel, login: string, repositoryName: string){
+	async getRepositoryCommits( login: string, repositoryName: string){
 		const per_page = 100
 		let githubCommits: GithubCommitModel[] = []
 		let page = 1
 
-		let result =  await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=${page}&per_page=${per_page}`,{
-			auth:{
-				username: currentUser.login,
-				password: currentUser.PAT	
-			},
-			validateStatus: () => true
-		})
+		let result =  await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=${page}&per_page=${per_page}`, this.GitHubBasicAuth)
 
 		while (result.data.length > 0) {
 			if (result.status == 200){
@@ -82,30 +63,18 @@ export class GitHubRestfullApi implements GitHubApi{
 				break
 			}
 
-			result =  await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=${++page}&per_page=${per_page}`,{
-				auth:{
-					username: currentUser.login,
-					password: currentUser.PAT	
-				},
-				validateStatus: () => true
-			})
+			result =  await githubApi.get(`/repos/${login}/${repositoryName}/commits?page=${++page}&per_page=${per_page}`,this.GitHubBasicAuth)
 		}
 
 		return githubCommits
 	}
 
-	async getRepositoryPulls(currentUser: UserModel, login: string, repositoryName: string){
+	async getRepositoryPulls( login: string, repositoryName: string){
 		const per_page = 100
 		let githubPulls: GithubPullModel[] = []
 		let page = 1
 
-		let result =  await githubApi.get(`/repos/${login}/${repositoryName}/pulls?state=all&page=${page}&per_page=${per_page}`,{
-			auth:{
-				username: currentUser.login,
-				password: currentUser.PAT	
-			},
-			validateStatus: () => true
-		})
+		let result =  await githubApi.get(`/repos/${login}/${repositoryName}/pulls?state=all&page=${page}&per_page=${per_page}`, this.GitHubBasicAuth)
 
 		while(result.data.length > 0){
 			if(result.status == 200){
@@ -115,37 +84,17 @@ export class GitHubRestfullApi implements GitHubApi{
 				break
 			}
 
-			result =  await githubApi.get(`/repos/${login}/${repositoryName}/pulls?state=all&page=${++page}&per_page=${per_page}`,{
-				auth:{
-					username: currentUser.login,
-					password: currentUser.PAT	
-				},
-				validateStatus: () => true
-			})
+			result =  await githubApi.get(`/repos/${login}/${repositoryName}/pulls?state=all&page=${++page}&per_page=${per_page}`,this.GitHubBasicAuth)
 		}
 
 		return githubPulls
 	}
 
-	async getUsedLanguages(currentUser: UserModel, login: string, repositoryName: string){
-		return await githubApi.get(`/repos/${login}/${repositoryName}/languages`,{
-			auth:{
-				username: currentUser.login,
-				password: currentUser.PAT	
-			},
-			validateStatus: () => true
-		})
+	async getUsedLanguages( login: string, repositoryName: string){
+		return await githubApi.get(`/repos/${login}/${repositoryName}/languages`, this.GitHubBasicAuth)
 	}
 	
-	async searchUser(currentUser: UserModel, username: string){
-		const result = await githubApi.get(`/users/${username}`,{
-			auth:{
-				username: currentUser.login,
-				password: currentUser.PAT	
-			},
-			validateStatus: () => true
-		})
-
-		return result
+	async searchUser( username: string){
+		return await githubApi.get(`/users/${username}`, this.GitHubBasicAuth)
 	}
 }
