@@ -1,13 +1,12 @@
 import 'dotenv/config'
 
 const server_host = process.env.SERVER_HOST || 'localhost'
-const server_port = parseInt(process.env.SERVER_PORT || '6060')
 
 export default {
 	"openapi": "3.0.0",
 	"info": {
 		"title": "Github data manipulation API",
-		"description": "This API manipulates the some endpoints of Github restfull API",
+		"description": "This API manipulates the some endpoints of Github restfull API, remember to authenticate yourself with your username and PAT from Github.com",
 		"contact":{
 			"name": "Eliezer Marques Mafra",
 			"email": "eliezermmafra@live.com"
@@ -16,7 +15,7 @@ export default {
 	},
 	"servers": [
 		{
-			"url": `http://${server_host}:${server_port}`,
+			"url": `${server_host}`,
 			"description": "Test API"
 		}
 	],
