@@ -1,6 +1,6 @@
 import { githubApi } from "../../config/github-api-config";
 import { GitHubApi } from "../github-api";
-import { UserModel } from "../../model/user-model";
+import { GithubUserModel, UserModel } from "../../model/user-model";
 import { AxiosResponse } from "axios";
 import { GithubRepositoryModel } from "../../model/repository-model";
 import { resourceLimits } from "worker_threads";
@@ -137,4 +137,15 @@ export class GitHubRestfullApi implements GitHubApi{
 		})
 	}
 	
+	async searchUser(currentUser: UserModel, username: string){
+		const result = await githubApi.get(`/users/${username}`,{
+			auth:{
+				username: currentUser.login,
+				password: currentUser.PAT	
+			},
+			validateStatus: () => true
+		})
+
+		return result
+	}
 }

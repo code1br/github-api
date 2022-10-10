@@ -71,6 +71,39 @@ export default {
 						"description": "Unauthorized: Error on authentication"
 					}
 				}
+			},
+			"get": {
+				"summary": "Get the username given in the param",
+				"description": "This route/method get the username given in the param",
+				"security": [{ "basicAuth": [] }],
+				"tags": ["Following"],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "username",
+						"description": "username to get",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "No Content: Request was sent to Github API",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/User"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request: It was not possible to unfollow the given user"
+					},
+					"401": {
+						"description": "Unauthorized: Error on authentication"
+					}
+				}
 			}
 		},
 		"/user/repositories": {
@@ -196,7 +229,7 @@ export default {
 									"type": "object",
 									"$ref": "#/components/schemas/Languages"
 								},
-								"examples":{
+								"examples": {
 									"Response example": {
 										"value": {
 											"languageName1": 50,
@@ -221,52 +254,89 @@ export default {
 		},
 	},
 	"components": {
-			"schemas": {
-				"Repository": {
-					"type": "array",
-					"items": {
-						"type": "object",
-						"properties": {
-							"name": { "type": "string" },
-							"owner": { "type": "string" },
-							"private": { "type": "boolean" }
-						}
-					}
-				},
-				"Stars": {
+		"schemas": {
+			"Repository": {
+				"type": "array",
+				"items": {
 					"type": "object",
 					"properties": {
-						"stars": { "type": "number" }
-
+						"name": { "type": "string" },
+						"owner": { "type": "string" },
+						"private": { "type": "boolean" }
 					}
-				},
-				"Commits": {
-					"type": "object",
-					"properties": {
-						"commits_in_current_year": { "type": "number" },
-						"total_commits": { "type": "number" }
-					}
-
-				},
-				"Pulls": {
-					"type": "object",
-					"properties": {
-						"pulls_in_current_year": { "type": "number" },
-						"total_pulls": { "type": "number" }
-					}
-
-				},
-				"Languages": {
-					"type": "object",
-					"additionalProperties": {
-						"type": "number"
-					}
-
-				},
+				}
 			},
-			"securitySchemes": {
-				"basicAuth": { "type": "http", "scheme": "basic" }
-			}
+			"Stars": {
+				"type": "object",
+				"properties": {
+					"stars": { "type": "number" }
+
+				}
+			},
+			"User": {
+				"type": "object",
+				"properties": {
+					"login": { "type":  "string" },
+					"id": { "type":  "number" },
+					"node_id": { "type":  "string" },
+					"avatar_url": { "type":  "string" },
+					"gravatar_id": { "type":  "string" },
+					"url": { "type":  "string" },
+					"html_url": { "type":  "string" },
+					"followers_url": { "type":  "string" },
+					"following_url": { "type":  "string" },
+					"gists_url": { "type":  "string" },
+					"starred_url": { "type":  "string" },
+					"subscriptions_url": { "type":  "string" },
+					"organizations_url": { "type":  "string" },
+					"repos_url": { "type":  "string" },
+					"events_url": { "type":  "string" },
+					"received_events_url": { "type":  "string" },
+					"type": { "type":  "string" },
+					"site_admin": { "type":  "boolean" },
+					"name": { "type":  "string" },
+					"company": { "type":  "string" },
+					"blog": { "type":  "string" },
+					"location": { "type":  "string" },
+					"email": { "type":  "string" },
+					"hireable": { "type":  "boolean" },
+					"bio": { "type":  "string" },
+					"twitter_username": { "type":  "string" },
+					"public_repos": { "type":  "number" },
+					"public_gists": { "type":  "number" },
+					"followers": { "type":  "number" },
+					"following": { "type":  "number" },
+					"created_at": { "type":  "string" },
+					"updated_at": { "type":  "string" },
+				}
+			},
+			"Commits": {
+				"type": "object",
+				"properties": {
+					"commits_in_current_year": { "type": "number" },
+					"total_commits": { "type": "number" }
+				}
+
+			},
+			"Pulls": {
+				"type": "object",
+				"properties": {
+					"pulls_in_current_year": { "type": "number" },
+					"total_pulls": { "type": "number" }
+				}
+
+			},
+			"Languages": {
+				"type": "object",
+				"additionalProperties": {
+					"type": "number"
+				}
+
+			},
+		},
+		"securitySchemes": {
+			"basicAuth": { "type": "http", "scheme": "basic" }
 		}
+	}
 
 }

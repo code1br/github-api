@@ -7,6 +7,7 @@ export const routerUsers = express.Router()
 routerUsers
 	.put('/users/following/:userToFollow', Authenticate, UserController.followUser)
 	.delete('/users/following/:userToUnfollow', Authenticate, UserController.unfollowUser)
+	.get('/users/following/:userToSearch', Authenticate, UserController.searchUser)
 	.get('/user/repositories', Authenticate, UserController.listRepositories)
 	.get('/user/stars', Authenticate, UserController.getNumberOfStars)
 	.get('/user/commits', Authenticate, UserController.getNumberOfCommits)
