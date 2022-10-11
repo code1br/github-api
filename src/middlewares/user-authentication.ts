@@ -1,39 +1,39 @@
 import { Request, Response, NextFunction } from 'express'
 import { Buffer } from 'buffer'
-import { githubApi } from '../config/github-api'
+import { githubApi } from '../config/github-api-config'
 import { UserModel } from '../model/user-model'
 
 let CURRENT_USER: UserModel = {
-	username: '',
+	login: '',
 	PAT: ''
 }
 
-async function Authenticate(req: Request, res: Response, next: NextFunction){
+async function Authenticate(req: Request, res: Response, next: NextFunction) {
 	const headerAuth = req.headers.authorization
 
-	if(headerAuth){
+	if (headerAuth) {
 		const auth = Buffer.from(headerAuth.split(' ')[1], 'base64').toString()
 
-		const username = auth.split(':')[0]
+		const login = auth.split(':')[0]
 		const token = auth.split(':')[1]
 
-		try{
-			await githubApi.get('/user', {
-				auth:{
-					username: username,
-					password: token	
+		try {
+			const result = await githubApi.get('/user', {
+				auth: {
+					username: login,
+					password: token
 				}
 			})
 
-			CURRENT_USER.username = username
+			CURRENT_USER.login = login
 			CURRENT_USER.PAT = token
 
 			return next()
-		}catch(err){
+		} catch (err) {
 			res.status(401).send(`Error while authenticating: ${err}`)
 		}
 
-	}else{
+	} else {
 		res.status(401).send(`Basic auth required`)
 	}
 
