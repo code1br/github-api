@@ -9,6 +9,16 @@ export class UserController {
 		return new UserService(new GitHubRestfullApi)
 	}
 
+	static async authenticateUser(req: Request, res: Response) {
+		const {username, pat} = req.body
+
+		const token = await new UserController().getService().authenticateUser(username, pat)
+
+		res.status(200).json({
+			token
+		})
+	}
+
 	static async followUser(req: Request, res: Response) {
 		try {
 			const userToFollow = req.params.userToFollow

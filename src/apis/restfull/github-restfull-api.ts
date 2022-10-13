@@ -18,6 +18,15 @@ export class GitHubRestfullApi implements GitHubApi {
 		}
 	}
 
+	async checkUser(username: string, pat: string){
+		return await githubApi.get('/user', {
+			auth: {
+				username,
+				password: pat
+			}
+		})
+	}
+
 	async followUser(userToFollow: string) {
 		return await githubApi.put(`/user/following/${userToFollow}`, {}, this.GitHubBasicAuth)
 	}

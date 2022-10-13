@@ -1,178 +1,229 @@
+import { hash } from "bcryptjs";
 import { GitHubApi } from "../apis/github-api";
 import { CURRENT_USER } from "../middlewares/user-authentication";
 import { GithubCommitModel } from "../model/commit-model";
 import { GithubPullModel } from "../model/pull-model";
-import { GithubRepositoryModel, RepositoryModel } from "../model/repository-model";
+import {
+  GithubRepositoryModel,
+  RepositoryModel,
+} from "../model/repository-model";
 import { UserModel } from "../model/user-model";
+import { client } from "../prisma/client";
+import { GenerateTokenProvider } from "../provider/GenerateJwtToken";
 
 export class UserService {
-	constructor(
-		private GitHubApi: GitHubApi
-	) { }
+  constructor(private GitHubApi: GitHubApi) {}
 
-	async followUser(userToFollow: string) {
-		if (!userToFollow) {
-			throw new Error(`UserToFollow was not provided`)
-		}
+  async authenticateUser(username: string, pat: string) {
+    await this.GitHubApi.checkUser(username, pat);
 
-		const result = await this.GitHubApi.followUser(userToFollow)
+    const userOnDatabase = await client.user.findFirst({
+      where: { username },
+    });
 
-		if (result.status != 204) {
-			throw new Error(`Response status different from expected ${result.status}`)
-		}
-	}
+    const passwordHash = await hash(pat, 8);
 
-	async unfollowUser(userToUnfollow: string) {
-		if (!userToUnfollow) {
-			throw new Error(`Username was not provided`)
-		}
+    if (!userOnDatabase) {
+      const createdUser = await client.user.create({
+        data: {
+          username,
+          password: passwordHash,
+        },
+      })
+    }
 
-		const result = await this.GitHubApi.unfollowUser(userToUnfollow)
+    const token = await new GenerateTokenProvider().execute(username)
 
+    await client.user.update({
+      where:{ username },
+      data: { token }
+    })
 
-		if (result.status != 204) {
-			throw new Error(`Response status different from expected ${result.status}`)
-		}
-	}
+    return token
+  }
 
-	async listRepositories() {
-		let repositories: RepositoryModel[] = []
+  async followUser(userToFollow: string) {
+    if (!userToFollow) {
+      throw new Error(`UserToFollow was not provided`);
+    }
 
-		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories()
+    const result = await this.GitHubApi.followUser(userToFollow);
 
-		for (let repository of githubRepositories) {
-			repositories.push({
-				name: repository.name,
-				owner: repository.owner.login,
-				private: repository.private
-			})
-		}
+    if (result.status != 204) {
+      throw new Error(
+        `Response status different from expected ${result.status}`
+      );
+    }
+  }
 
-		return repositories
+  async unfollowUser(userToUnfollow: string) {
+    if (!userToUnfollow) {
+      throw new Error(`Username was not provided`);
+    }
 
-	}
+    const result = await this.GitHubApi.unfollowUser(userToUnfollow);
 
-	async getNumberOfStars() {
-		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories()
+    if (result.status != 204) {
+      throw new Error(
+        `Response status different from expected ${result.status}`
+      );
+    }
+  }
 
-		let numberOfStars = 0
+  async listRepositories() {
+    let repositories: RepositoryModel[] = [];
 
-		for (const repository of githubRepositories) {
-			numberOfStars += repository.stargazers_count
-		}
+    const githubRepositories: GithubRepositoryModel[] =
+      await this.GitHubApi.listRepositories();
 
-		return { stars: numberOfStars }
-	}
+    for (let repository of githubRepositories) {
+      repositories.push({
+        name: repository.name,
+        owner: repository.owner.login,
+        private: repository.private,
+      });
+    }
 
-	async getNumberOfCommits() {
-		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories()
+    return repositories;
+  }
 
-		let totalCommits = 0
-		let totalCommitsInCurrentYear = 0
+  async getNumberOfStars() {
+    const githubRepositories: GithubRepositoryModel[] =
+      await this.GitHubApi.listRepositories();
 
-		const currentYear = new Date().getFullYear()
+    let numberOfStars = 0;
 
-		for (const repository of repositoriesToSearch) {
-			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(repository.owner, repository.name)
+    for (const repository of githubRepositories) {
+      numberOfStars += repository.stargazers_count;
+    }
 
-			for (const commit of commits) {
-				if (commit.author) {
-					if (commit.author.login == CURRENT_USER.login) {
-						totalCommits++
+    return { stars: numberOfStars };
+  }
 
-						if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
-							totalCommitsInCurrentYear++
-						}
-					}
-				}
-			}
+  async getNumberOfCommits() {
+    const repositoriesToSearch: RepositoryModel[] =
+      await this.listRepositories();
 
-		}
+    let totalCommits = 0;
+    let totalCommitsInCurrentYear = 0;
 
-		return {
-			commits_in_current_year: totalCommitsInCurrentYear,
-			total_commits: totalCommits
-		}
+    const currentYear = new Date().getFullYear();
 
-	}
+    for (const repository of repositoriesToSearch) {
+      const commits: GithubCommitModel[] =
+        await this.GitHubApi.getRepositoryCommits(
+          repository.owner,
+          repository.name
+        );
 
-	async getNumberOfPulls() {
-		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories()
+      for (const commit of commits) {
+        if (commit.author) {
+          if (commit.author.login == CURRENT_USER.login) {
+            totalCommits++;
 
-		let totalPulls = 0
-		let totalPullsInCurrentYear = 0
+            if (
+              new Date(commit.commit.committer.date).getFullYear() ==
+              currentYear
+            ) {
+              totalCommitsInCurrentYear++;
+            }
+          }
+        }
+      }
+    }
 
-		const currentYear = new Date().getFullYear()
+    return {
+      commits_in_current_year: totalCommitsInCurrentYear,
+      total_commits: totalCommits,
+    };
+  }
 
-		for (const repository of repositoriesToSearch) {
-			const pulls: GithubPullModel[] = await this.GitHubApi.getRepositoryPulls(repository.owner, repository.name)
+  async getNumberOfPulls() {
+    let repositoriesToSearch: RepositoryModel[] = await this.listRepositories();
 
-			for (const pull of pulls) {
-				if (pull.user.login == CURRENT_USER.login) {
-					totalPulls++
+    let totalPulls = 0;
+    let totalPullsInCurrentYear = 0;
 
-					if (new Date(pull.created_at).getFullYear() == currentYear) {
-						totalPullsInCurrentYear++
-					}
-				}
+    const currentYear = new Date().getFullYear();
 
-			}
-		}
+    for (const repository of repositoriesToSearch) {
+      const pulls: GithubPullModel[] = await this.GitHubApi.getRepositoryPulls(
+        repository.owner,
+        repository.name
+      );
 
-		return {
-			pulls_in_current_year: totalPullsInCurrentYear,
-			total_pulls: totalPulls
-		}
+      for (const pull of pulls) {
+        if (pull.user.login == CURRENT_USER.login) {
+          totalPulls++;
 
-	}
+          if (new Date(pull.created_at).getFullYear() == currentYear) {
+            totalPullsInCurrentYear++;
+          }
+        }
+      }
+    }
 
-	async getUsedLanguages() {
-		type LanguageType = { [key: string]: number }
+    return {
+      pulls_in_current_year: totalPullsInCurrentYear,
+      total_pulls: totalPulls,
+    };
+  }
 
-		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories()
+  async getUsedLanguages() {
+    type LanguageType = { [key: string]: number };
 
-		let languagesBytesSize: LanguageType = {}
+    let repositoriesToSearch: RepositoryModel[] = await this.listRepositories();
 
-		let languagesPercentageUsage: LanguageType = {}
+    let languagesBytesSize: LanguageType = {};
 
-		let totalBytes: number = 0
+    let languagesPercentageUsage: LanguageType = {};
 
-		for (const repository of repositoriesToSearch) {
-			const result = await this.GitHubApi.getUsedLanguages(repository.owner, repository.name)
-			const usedLanguages = result.data as LanguageType
+    let totalBytes: number = 0;
 
-			if (result.status == 200) {
-				Object.entries(usedLanguages).forEach(([key, value]) => {
-					let newValue = languagesBytesSize[key] ? (languagesBytesSize[key] + value) : value;
+    for (const repository of repositoriesToSearch) {
+      const result = await this.GitHubApi.getUsedLanguages(
+        repository.owner,
+        repository.name
+      );
+      const usedLanguages = result.data as LanguageType;
 
-					Object.assign(languagesBytesSize, { [key]: newValue })
-				})
-			}
-		}
+      if (result.status == 200) {
+        Object.entries(usedLanguages).forEach(([key, value]) => {
+          let newValue = languagesBytesSize[key]
+            ? languagesBytesSize[key] + value
+            : value;
 
-		Object.entries(languagesBytesSize).forEach(([key, value]) => {
-			totalBytes += value
-		})
+          Object.assign(languagesBytesSize, { [key]: newValue });
+        });
+      }
+    }
 
-		Object.entries(languagesBytesSize).forEach(([key, value]) => {
-			Object.assign(languagesPercentageUsage, { [key]: parseFloat((value * 100 / totalBytes).toFixed(2)) })
-		})
+    Object.entries(languagesBytesSize).forEach(([key, value]) => {
+      totalBytes += value;
+    });
 
-		return languagesPercentageUsage
+    Object.entries(languagesBytesSize).forEach(([key, value]) => {
+      Object.assign(languagesPercentageUsage, {
+        [key]: parseFloat(((value * 100) / totalBytes).toFixed(2)),
+      });
+    });
 
-	}
+    return languagesPercentageUsage;
+  }
 
-	async searchUser(username: string) {
-		if (!username) {
-			throw new Error(`UserToSearch was not provided`)
-		}
+  async searchUser(username: string) {
+    if (!username) {
+      throw new Error(`UserToSearch was not provided`);
+    }
 
-		const result = await this.GitHubApi.searchUser(username)
+    const result = await this.GitHubApi.searchUser(username);
 
-		if (result.status != 200) {
-			throw new Error(`Response status different from expected ${result.status}`)
-		} else {
-			return result.data
-		}
-	}
+    if (result.status != 200) {
+      throw new Error(
+        `Response status different from expected ${result.status}`
+      );
+    } else {
+      return result.data;
+    }
+  }
 }
