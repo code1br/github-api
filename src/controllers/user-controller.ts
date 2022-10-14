@@ -89,6 +89,9 @@ export class UserController {
 
 	static async searchUser(req: Request, res: Response) {
 		try {
+			console.log('foi!!!')
+			console.log(CURRENT_USER)
+
 			const userToSearch = req.params.userToSearch
 
 			res.status(200).send(await new UserController().getService().searchUser(userToSearch))
