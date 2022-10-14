@@ -1,6 +1,7 @@
 import { GitHubApi } from "../apis/github-api"
 import { UserService } from "../service/user-service"
 
+const checkUserCredentialsSpy = jest.fn()
 const followUserSpy = jest.fn()
 const unfollowUserSpy = jest.fn()
 const listRepositoriesSpy = jest.fn()
@@ -16,12 +17,13 @@ const api: GitHubApi = {
 	getRepositoryCommits: getRepositoryCommitsSpy,
 	getRepositoryPulls: getRepositoryPullsSpy,
 	getUsedLanguages: getUsedLanguagesSpy,
-	searchUser: searchUserSpy
+	searchUser: searchUserSpy,
+	checkUserCredentials: checkUserCredentialsSpy
 }
 
 const service = new UserService(api)
 
-jest.mock('../middlewares/user-authentication', () => ({
+jest.mock('../middlewares/user-ensureAuthentication', () => ({
 	get CURRENT_USER() {
 		return {
 			login: 'AAAAAAAA',

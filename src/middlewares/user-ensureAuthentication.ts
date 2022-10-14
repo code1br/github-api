@@ -31,7 +31,7 @@ async function ensureAuthentication(req: Request, res: Response, next: NextFunct
 
 		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || '')
 
-		const decryptedPat = cryptr.decrypt(user?.password || '')
+		const decryptedPat = cryptr.decrypt(user?.pat || '')
 
 		CURRENT_USER.login = user?.username || ''
 		CURRENT_USER.PAT = decryptedPat || ''

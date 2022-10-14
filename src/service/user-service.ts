@@ -27,7 +27,7 @@ export class UserService {
 			const createdUser = await client.user.create({
 				data: {
 					username,
-					password: encryptedPat,
+					pat: encryptedPat,
 					token
 				},
 			})
