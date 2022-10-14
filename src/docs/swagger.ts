@@ -7,7 +7,7 @@ export default {
 	"info": {
 		"title": "Github data manipulation API",
 		"description": "This API manipulates the some endpoints of Github restfull API, remember to authenticate yourself with your username and PAT from Github.com",
-		"contact":{
+		"contact": {
 			"name": "Eliezer Marques Mafra",
 			"email": "eliezermmafra@live.com"
 		},
@@ -20,11 +20,54 @@ export default {
 		}
 	],
 	"paths": {
+		"/user/login": {
+			"post": {
+				"summary": "Authenticate and get JWT token",
+				"description": "This route/method authenticates and gets the JWT token",
+				"tags": ["Login"],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Login"
+							},
+							"examples": {
+								"Model": {
+									"value": {
+										"username": "<USERNAME HERE>",
+										"pat": "<PAT HERE>"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "OK: Repositories returned successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Login"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request: It was not possible to follow the given user"
+					},
+					"401": {
+						"description": "Unauthorized: Error on authentication"
+					}
+				}
+			}
+		},
 		"/users/following/{username}": {
 			"put": {
 				"summary": "Follow the username given in the param",
 				"description": "This route/method follow the username given in the param",
-				"security": [{ "basicAuth": [] }],
+				"security": [{ "bearerAuth": [] }],
 				"tags": ["Following"],
 				"parameters": [
 					{
@@ -49,7 +92,7 @@ export default {
 			"delete": {
 				"summary": "Unfollow the username given in the param",
 				"description": "This route/method unfollow the username given in the param",
-				"security": [{ "basicAuth": [] }],
+				"security": [{ "bearerAuth": [] }],
 				"tags": ["Following"],
 				"parameters": [
 					{
@@ -74,7 +117,7 @@ export default {
 			"get": {
 				"summary": "Get the username given in the param",
 				"description": "This route/method get the username given in the param",
-				"security": [{ "basicAuth": [] }],
+				"security": [{ "bearerAuth": [] }],
 				"tags": ["Following"],
 				"parameters": [
 					{
@@ -109,7 +152,7 @@ export default {
 			"get": {
 				"summary": "Get the authenticated user's repositories",
 				"description": "This route/method gets the authenticated user's private and public repositories",
-				"security": [{ "basicAuth": [] }],
+				"security": [{ "bearerAuth": [] }],
 				"tags": ["Stats"],
 				"responses": {
 					"200": {
@@ -136,7 +179,7 @@ export default {
 			"get": {
 				"summary": "Get the authenticated user's repositories stars",
 				"description": "This route/method gets the authenticated user's repositories stars",
-				"security": [{ "basicAuth": [] }],
+				"security": [{ "bearerAuth": [] }],
 				"tags": ["Stats"],
 				"responses": {
 					"200": {
@@ -163,7 +206,7 @@ export default {
 			"get": {
 				"summary": "Get the authenticated user's summed commits",
 				"description": "This route/method gets the authenticated user's summed commits in public and private repositories",
-				"security": [{ "basicAuth": [] }],
+				"security": [{ "bearerAuth": [] }],
 				"tags": ["Stats"],
 				"responses": {
 					"200": {
@@ -190,7 +233,7 @@ export default {
 			"get": {
 				"summary": "Get the authenticated user's summed pulls",
 				"description": "This route/method gets the authenticated user's summed pulls in public and private repositories",
-				"security": [{ "basicAuth": [] }],
+				"security": [{ "bearerAuth": [] }],
 				"tags": ["Stats"],
 				"responses": {
 					"200": {
@@ -217,7 +260,7 @@ export default {
 			"get": {
 				"summary": "Get the authenticated user's used languages",
 				"description": "This route/method gets the authenticated user's used languages in public and private repositories",
-				"security": [{ "basicAuth": [] }],
+				"security": [{ "bearerAuth": [] }],
 				"tags": ["Stats"],
 				"responses": {
 					"200": {
@@ -275,38 +318,45 @@ export default {
 			"User": {
 				"type": "object",
 				"properties": {
-					"login": { "type":  "string" },
-					"id": { "type":  "number" },
-					"node_id": { "type":  "string" },
-					"avatar_url": { "type":  "string" },
-					"gravatar_id": { "type":  "string" },
-					"url": { "type":  "string" },
-					"html_url": { "type":  "string" },
-					"followers_url": { "type":  "string" },
-					"following_url": { "type":  "string" },
-					"gists_url": { "type":  "string" },
-					"starred_url": { "type":  "string" },
-					"subscriptions_url": { "type":  "string" },
-					"organizations_url": { "type":  "string" },
-					"repos_url": { "type":  "string" },
-					"events_url": { "type":  "string" },
-					"received_events_url": { "type":  "string" },
-					"type": { "type":  "string" },
-					"site_admin": { "type":  "boolean" },
-					"name": { "type":  "string" },
-					"company": { "type":  "string" },
-					"blog": { "type":  "string" },
-					"location": { "type":  "string" },
-					"email": { "type":  "string" },
-					"hireable": { "type":  "boolean" },
-					"bio": { "type":  "string" },
-					"twitter_username": { "type":  "string" },
-					"public_repos": { "type":  "number" },
-					"public_gists": { "type":  "number" },
-					"followers": { "type":  "number" },
-					"following": { "type":  "number" },
-					"created_at": { "type":  "string" },
-					"updated_at": { "type":  "string" },
+					"login": { "type": "string" },
+					"id": { "type": "number" },
+					"node_id": { "type": "string" },
+					"avatar_url": { "type": "string" },
+					"gravatar_id": { "type": "string" },
+					"url": { "type": "string" },
+					"html_url": { "type": "string" },
+					"followers_url": { "type": "string" },
+					"following_url": { "type": "string" },
+					"gists_url": { "type": "string" },
+					"starred_url": { "type": "string" },
+					"subscriptions_url": { "type": "string" },
+					"organizations_url": { "type": "string" },
+					"repos_url": { "type": "string" },
+					"events_url": { "type": "string" },
+					"received_events_url": { "type": "string" },
+					"type": { "type": "string" },
+					"site_admin": { "type": "boolean" },
+					"name": { "type": "string" },
+					"company": { "type": "string" },
+					"blog": { "type": "string" },
+					"location": { "type": "string" },
+					"email": { "type": "string" },
+					"hireable": { "type": "boolean" },
+					"bio": { "type": "string" },
+					"twitter_username": { "type": "string" },
+					"public_repos": { "type": "number" },
+					"public_gists": { "type": "number" },
+					"followers": { "type": "number" },
+					"following": { "type": "number" },
+					"created_at": { "type": "string" },
+					"updated_at": { "type": "string" },
+				}
+			},
+			"Login": {
+				"type": "object",
+				"properties": {
+					"username": { "type": "string" },
+					"pat": { "type": "string" }
 				}
 			},
 			"Commits": {
@@ -334,7 +384,7 @@ export default {
 			},
 		},
 		"securitySchemes": {
-			"basicAuth": { "type": "http", "scheme": "basic" }
+			"bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
 		}
 	}
 
