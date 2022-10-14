@@ -1,4 +1,3 @@
-import { hash } from "bcryptjs";
 import { GitHubApi } from "../apis/github-api";
 import { CURRENT_USER } from "../middlewares/user-authentication";
 import { GithubCommitModel } from "../model/commit-model";
@@ -7,9 +6,10 @@ import {
   GithubRepositoryModel,
   RepositoryModel,
 } from "../model/repository-model";
-import { UserModel } from "../model/user-model";
 import { client } from "../prisma/client";
 import { GenerateTokenProvider } from "../provider/GenerateJwtToken";
+import "cryptr";
+import Cryptr from "cryptr";
 
 export class UserService {
   constructor(private GitHubApi: GitHubApi) {}
@@ -21,13 +21,15 @@ export class UserService {
       where: { username },
     });
 
-    const passwordHash = await hash(pat, 8);
+    const cryptr = new Cryptr(process.env.CRYPTR_SECRET || '')
+
+    const encryptedPat = cryptr.encrypt(pat)
 
     if (!userOnDatabase) {
       const createdUser = await client.user.create({
         data: {
           username,
-          password: passwordHash,
+          password: encryptedPat,
         },
       })
     }
