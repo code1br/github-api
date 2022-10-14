@@ -3,7 +3,7 @@ import { GitHubApi } from "../github-api";
 import { GithubRepositoryModel } from "../../model/repository-model";
 import { GithubCommitModel } from "../../model/commit-model";
 import { GithubPullModel } from "../../model/pull-model";
-import { CURRENT_USER } from "../../middlewares/user-authentication";
+import { CURRENT_USER } from "../../middlewares/user-ensureAuthentication";
 
 export class GitHubRestfullApi implements GitHubApi {
 	GitHubBasicAuth: { auth: { username: string, password: string }, validateStatus: () => boolean };
@@ -18,7 +18,7 @@ export class GitHubRestfullApi implements GitHubApi {
 		}
 	}
 
-	async checkUser(username: string, pat: string){
+	async checkUserCredentials(username: string, pat: string){
 		return await githubApi.get('/user', {
 			auth: {
 				username,

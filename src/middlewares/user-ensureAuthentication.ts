@@ -9,13 +9,13 @@ let CURRENT_USER: UserModel = {
 	PAT: ''
 }
 
-async function Authenticate(req: Request, res: Response, next: NextFunction) {
+async function ensureAuthentication(req: Request, res: Response, next: NextFunction) {
 	const headerAuth = req.headers.authorization;
 	const token = headerAuth && headerAuth.split(" ")[1]
 
 	if(!token){
 		return res.status(401).json({
-			message: "Access denied"
+			message: "Token is missing"
 		});
 	}
 
@@ -38,12 +38,17 @@ async function Authenticate(req: Request, res: Response, next: NextFunction) {
 
 		next()
 	}catch(error){
-		return res.status(500).json({
+		return res.status(401).json({
 			message: "Insert a valid token!"
 		})
 	}
 
 }
 
-export { Authenticate }
+async function clearCurrentUser() {
+	CURRENT_USER.login = ''
+	CURRENT_USER.PAT = ''
+}
+
+export { ensureAuthentication, clearCurrentUser }
 export { CURRENT_USER }

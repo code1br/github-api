@@ -1,5 +1,6 @@
 import { app } from "./app"
 import 'dotenv/config'
+import { CURRENT_USER } from "./middlewares/user-ensureAuthentication"
 
 export const server_host = process.env.SERVER_HOST || 'localhost'
 export const server_ip = process.env.SERVER_IP || 'localhost'

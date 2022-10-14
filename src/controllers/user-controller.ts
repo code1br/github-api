@@ -1,8 +1,8 @@
 import { GitHubRestfullApi } from "../apis/restfull/github-restfull-api";
 import { UserService } from "../service/user-service";
 import { Request, Response } from "express"
-import { CURRENT_USER } from "../middlewares/user-authentication";
-import { AxiosResponse } from "axios";
+import { clearCurrentUser } from "../middlewares/user-ensureAuthentication";
+
 
 export class UserController {
 	private getService() {
@@ -10,13 +10,15 @@ export class UserController {
 	}
 
 	static async authenticateUser(req: Request, res: Response) {
-		const {username, pat} = req.body
+		try {
+			const { username, pat } = req.body
 
-		const token = await new UserController().getService().authenticateUser(username, pat)
+			const token = await new UserController().getService().authenticateUser(username, pat)
 
-		res.status(200).json({
-			token
-		})
+			res.status(200).json({ token })
+		} catch (err) {
+			this.handleError(err, res)
+		}
 	}
 
 	static async followUser(req: Request, res: Response) {
@@ -28,6 +30,8 @@ export class UserController {
 			res.status(204).send()
 		} catch (err) {
 			this.handleError(err, res)
+		} finally {
+			clearCurrentUser()
 		}
 	}
 
@@ -40,6 +44,8 @@ export class UserController {
 			res.status(204).send()
 		} catch (err) {
 			this.handleError(err, res)
+		} finally {
+			clearCurrentUser()
 		}
 	}
 
@@ -47,11 +53,9 @@ export class UserController {
 		try {
 			res.status(200).json(await new UserController().getService().listRepositories())
 		} catch (err) {
-			if (err instanceof Error) {
-				res.status(400).send(err.stack)
-			} else {
-				res.status(400).send("Unexpected error !!!")
-			}
+			this.handleError(err, res)
+		} finally {
+			clearCurrentUser()
 		}
 	}
 
@@ -60,6 +64,8 @@ export class UserController {
 			res.status(200).json(await new UserController().getService().getNumberOfStars())
 		} catch (err) {
 			this.handleError(err, res)
+		} finally {
+			clearCurrentUser()
 		}
 	}
 
@@ -68,6 +74,8 @@ export class UserController {
 			res.status(200).json(await new UserController().getService().getNumberOfCommits())
 		} catch (err) {
 			this.handleError(err, res)
+		} finally {
+			clearCurrentUser()
 		}
 	}
 
@@ -76,6 +84,8 @@ export class UserController {
 			res.status(200).json(await new UserController().getService().getNumberOfPulls())
 		} catch (err) {
 			this.handleError(err, res)
+		} finally {
+			clearCurrentUser()
 		}
 	}
 
@@ -84,6 +94,8 @@ export class UserController {
 			res.status(200).json(await new UserController().getService().getUsedLanguages())
 		} catch (err) {
 			this.handleError(err, res)
+		} finally {
+			clearCurrentUser()
 		}
 	}
 
@@ -94,14 +106,14 @@ export class UserController {
 			res.status(200).send(await new UserController().getService().searchUser(userToSearch))
 		} catch (err) {
 			this.handleError(err, res)
+		} finally {
+			clearCurrentUser()
 		}
 	}
 
 	static handleError(err: unknown, res: Response) {
-		console.log('handleError:')
-		console.log(err)
-		console.log(res)
 		if (err instanceof Error) {
+			console.error(err.stack)
 			res.status(400).send(err.message)
 		} else {
 			res.status(400).send("Unexpected error !!!")
