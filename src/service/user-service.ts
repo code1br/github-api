@@ -4,24 +4,34 @@ import { GithubCommitModel } from "../model/commit-model";
 import { GithubPullModel } from "../model/pull-model";
 import { GithubRepositoryModel, RepositoryModel } from "../model/repository-model";
 import { client } from "../prisma/client";
-import { GenerateTokenProvider } from "../provider/GenerateJwtToken";
+import { GenerateJwtTokenProvider } from "../provider/generate-jwt-token-provider";
 import Cryptr from "cryptr";
 
 export class UserService {
 	constructor(private GitHubApi: GitHubApi) { }
 
 	async authenticateUser(username: string, pat: string) {
-		await this.GitHubApi.checkUserCredentials(username, pat);
-
+		if(!username){
+			throw new Error(`Username was not provided`)
+		}
+		if(!pat){
+			throw new Error(`PAT was not provided`)
+		}
+		if(!pat.startsWith('ghp_')){
+			throw new Error(`PAT is not valid`)
+		}
+		
+		const apiResponse = await this.GitHubApi.checkUserCredentials(username, pat)
+		
 		const userOnDatabase = await client.user.findFirst({
 			where: { username }
 		})
-
-		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || '')
-
+		
+		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || 'default')
+		
 		const encryptedPat = cryptr.encrypt(pat)
-
-		const token = await new GenerateTokenProvider().execute(username)
+		
+		const token = new GenerateJwtTokenProvider().execute(username)
 
 		if (!userOnDatabase) {
 			const createdUser = await client.user.create({

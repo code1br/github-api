@@ -1,26 +1,32 @@
 import { GitHubApi } from "../apis/github-api"
 import { UserService } from "../service/user-service"
 
-const checkUserCredentialsSpy = jest.fn()
-const followUserSpy = jest.fn()
-const unfollowUserSpy = jest.fn()
-const listRepositoriesSpy = jest.fn()
-const getRepositoryCommitsSpy = jest.fn()
-const getRepositoryPullsSpy = jest.fn()
-const getUsedLanguagesSpy = jest.fn()
-const searchUserSpy = jest.fn()
-
-const api: GitHubApi = {
-	followUser: followUserSpy,
-	unfollowUser: unfollowUserSpy,
-	listRepositories: listRepositoriesSpy,
-	getRepositoryCommits: getRepositoryCommitsSpy,
-	getRepositoryPulls: getRepositoryPullsSpy,
-	getUsedLanguages: getUsedLanguagesSpy,
-	searchUser: searchUserSpy,
-	checkUserCredentials: checkUserCredentialsSpy
+const githubApiSpy = {
+	checkUserCredentialsSpy: jest.fn(),
+	followUserSpy: jest.fn(),
+	unfollowUserSpy: jest.fn(),
+	listRepositoriesSpy: jest.fn(),
+	getRepositoryCommitsSpy: jest.fn(),
+	getRepositoryPullsSpy: jest.fn(),
+	getUsedLanguagesSpy: jest.fn(),
+	searchUserSpy: jest.fn()
 }
-
+const prismaClientSpy = {
+	findFirst: jest.fn(),
+	create: jest.fn(),
+	update: jest.fn()
+}
+const generateJwtTokenProviderSpy = jest.fn()
+const api: GitHubApi = {
+	followUser: githubApiSpy.followUserSpy,
+	unfollowUser: githubApiSpy.unfollowUserSpy,
+	listRepositories: githubApiSpy.listRepositoriesSpy,
+	getRepositoryCommits: githubApiSpy.getRepositoryCommitsSpy,
+	getRepositoryPulls: githubApiSpy.getRepositoryPullsSpy,
+	getUsedLanguages: githubApiSpy.getUsedLanguagesSpy,
+	searchUser: githubApiSpy.searchUserSpy,
+	checkUserCredentials: githubApiSpy.checkUserCredentialsSpy
+}
 const service = new UserService(api)
 
 jest.mock('../middlewares/user-ensureAuthentication', () => ({
@@ -30,7 +36,26 @@ jest.mock('../middlewares/user-ensureAuthentication', () => ({
 			PAT: 'asdasfdgasfdgr435t345t326t5234yg54qg5rg45'
 		}
 	}
-}));
+}))
+jest.mock("../prisma/client", () => {
+	return {
+		_esModule: true,
+		client: {
+			user: {
+				findFirst: async () => prismaClientSpy.findFirst(),
+				create: async () => prismaClientSpy.create(),
+				update: async () => prismaClientSpy.update()
+			}
+		}
+	}
+})
+jest.mock('../provider/generate-jwt-token-provider', () => {
+	return {
+		GenerateJwtTokenProvider: jest.fn().mockImplementation(() => {
+			return { execute: generateJwtTokenProviderSpy };
+		}),
+	};
+});
 
 describe('Follow a user', () => {
 	it('should be able to follow a user', () => {
@@ -40,11 +65,11 @@ describe('Follow a user', () => {
 			"status": 204
 		}
 
-		followUserSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.followUserSpy.mockResolvedValueOnce(apiResponse)
 
 		expect(service.followUser(loginToFollow)).resolves.not.toThrow()
 
-		expect(followUserSpy).toHaveBeenCalledWith(loginToFollow)
+		expect(githubApiSpy.followUserSpy).toHaveBeenCalledWith(loginToFollow)
 	})
 
 	it('should not be able to follow a user with empty login to follow', () => {
@@ -52,7 +77,7 @@ describe('Follow a user', () => {
 
 		expect(service.followUser(loginToFollow)).rejects.toThrow()
 
-		expect(followUserSpy).not.toHaveBeenCalled()
+		expect(githubApiSpy.followUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should rejects when api reponse status code is not 204', () => {
@@ -62,11 +87,11 @@ describe('Follow a user', () => {
 			"status": 400
 		}
 
-		followUserSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.followUserSpy.mockResolvedValueOnce(apiResponse)
 
 		expect(service.followUser(loginToFollow)).rejects.toThrow()
 
-		expect(followUserSpy).toHaveBeenCalledWith(loginToFollow)
+		expect(githubApiSpy.followUserSpy).toHaveBeenCalledWith(loginToFollow)
 	})
 })
 
@@ -78,11 +103,11 @@ describe('Unfollow a user', () => {
 			"status": 204
 		}
 
-		unfollowUserSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.unfollowUserSpy.mockResolvedValueOnce(apiResponse)
 
 		expect(service.unfollowUser(loginToUnfollow)).resolves.not.toThrow()
 
-		expect(unfollowUserSpy).toHaveBeenCalledWith(loginToUnfollow)
+		expect(githubApiSpy.unfollowUserSpy).toHaveBeenCalledWith(loginToUnfollow)
 	})
 
 	it('should not be able to unfollow a user with empty login to follow', () => {
@@ -90,7 +115,7 @@ describe('Unfollow a user', () => {
 
 		expect(service.unfollowUser(loginToUnfollow)).rejects.toThrow()
 
-		expect(followUserSpy).not.toHaveBeenCalled()
+		expect(githubApiSpy.followUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should rejects when api reponse status code is not 204', () => {
@@ -100,11 +125,11 @@ describe('Unfollow a user', () => {
 			"status": 400
 		}
 
-		unfollowUserSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.unfollowUserSpy.mockResolvedValueOnce(apiResponse)
 
 		expect(service.unfollowUser(loginToFollow)).rejects.toThrow()
 
-		expect(unfollowUserSpy).toHaveBeenCalledWith(loginToFollow)
+		expect(githubApiSpy.unfollowUserSpy).toHaveBeenCalledWith(loginToFollow)
 	})
 })
 
@@ -143,13 +168,13 @@ describe('List repositories', () => {
 			}
 		]
 
-		listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
 
 		const result = await service.listRepositories()
 
 		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalledTimes(1)
 	})
 })
 
@@ -176,13 +201,13 @@ describe('Get Stars', () => {
 
 		const expectedResult = { stars: 9 }
 
-		listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
 
 		const result = await service.getNumberOfStars()
 
 		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalledTimes(1)
 
 	})
 })
@@ -409,21 +434,21 @@ describe('Get Commits', () => {
 			total_commits: 13
 		}
 
-		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
 
-		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse1)
-		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse2)
-		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse3)
+		githubApiSpy.getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse1)
+		githubApiSpy.getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse2)
+		githubApiSpy.getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse3)
 
 		const result = await service.getNumberOfCommits()
 
 		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
-		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
-		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
-		expect(getRepositoryCommitsSpy).toHaveBeenCalledTimes(3)
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
+		expect(githubApiSpy.getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
+		expect(githubApiSpy.getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
+		expect(githubApiSpy.getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalledTimes(1)
+		expect(githubApiSpy.getRepositoryCommitsSpy).toHaveBeenCalledTimes(3)
 
 	})
 })
@@ -601,21 +626,21 @@ describe('Get Pulls', () => {
 			total_pulls: 10
 		}
 
-		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
 
-		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse1)
-		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse2)
-		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse3)
+		githubApiSpy.getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse1)
+		githubApiSpy.getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse2)
+		githubApiSpy.getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse3)
 
 		const result = await service.getNumberOfPulls()
 
 		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
-		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
-		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
-		expect(getRepositoryPullsSpy).toHaveBeenCalledTimes(3)
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
+		expect(githubApiSpy.getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
+		expect(githubApiSpy.getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
+		expect(githubApiSpy.getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalledTimes(1)
+		expect(githubApiSpy.getRepositoryPullsSpy).toHaveBeenCalledTimes(3)
 
 	})
 })
@@ -670,21 +695,21 @@ describe('Get Used Languages', () => {
 			"Ruby": 0.0
 		}
 
-		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
 
-		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse1)
-		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse2)
-		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse3)
+		githubApiSpy.getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse1)
+		githubApiSpy.getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse2)
+		githubApiSpy.getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse3)
 
 		const result = await service.getUsedLanguages()
 
 		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
-		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
-		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
-		expect(getUsedLanguagesSpy).toHaveBeenCalledTimes(3)
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
+		expect(githubApiSpy.getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
+		expect(githubApiSpy.getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
+		expect(githubApiSpy.getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
+		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalledTimes(1)
+		expect(githubApiSpy.getUsedLanguagesSpy).toHaveBeenCalledTimes(3)
 
 	})
 })
@@ -697,11 +722,11 @@ describe('Get a user', () => {
 			"status": 200
 		}
 
-		searchUserSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.searchUserSpy.mockResolvedValueOnce(apiResponse)
 
 		expect(service.searchUser(usernameToGet)).resolves.not.toThrow()
 
-		expect(searchUserSpy).toHaveBeenCalledWith(usernameToGet)
+		expect(githubApiSpy.searchUserSpy).toHaveBeenCalledWith(usernameToGet)
 	})
 
 	it('should not be able to get a user with empty login to get', () => {
@@ -709,7 +734,7 @@ describe('Get a user', () => {
 
 		expect(service.searchUser(usernameToGet)).rejects.toThrow()
 
-		expect(searchUserSpy).not.toHaveBeenCalled()
+		expect(githubApiSpy.searchUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should rejects when api reponse status code is not 200', () => {
@@ -719,10 +744,88 @@ describe('Get a user', () => {
 			"status": 400
 		}
 
-		searchUserSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.searchUserSpy.mockResolvedValueOnce(apiResponse)
 
 		expect(service.searchUser(usernameToGet)).rejects.toThrow()
 
-		expect(searchUserSpy).toHaveBeenCalledWith(usernameToGet)
+		expect(githubApiSpy.searchUserSpy).toHaveBeenCalledWith(usernameToGet)
+	})
+})
+
+describe('Authenticate user', () => {
+	it('should be able to authenticate user that already exists on database', async () => {
+		const username = 'krakrakra'
+		const pat = 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+
+		githubApiSpy.checkUserCredentialsSpy.mockResolvedValueOnce({
+			username: 'krakrakra',
+			pat: 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+		})
+
+		prismaClientSpy.findFirst.mockResolvedValueOnce({
+			id: '6a8564da45d6fs56564a56d',
+			username: username,
+			pat: 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+		})
+
+		generateJwtTokenProviderSpy.mockReturnValueOnce('123456789')
+
+		await expect(service.authenticateUser(username, pat)).resolves.not.toThrow()
+		expect(prismaClientSpy.findFirst).toHaveBeenCalledTimes(1)
+		expect(api.checkUserCredentials).toHaveBeenCalledWith(username, pat)
+		expect(prismaClientSpy.update).toHaveBeenCalledTimes(1)
+		expect(generateJwtTokenProviderSpy).toHaveBeenCalledTimes(1)
+	})
+	it('should be able to authenticate user that does not exist on database', async () => {
+		const username = 'krakrakra'
+		const pat = 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+
+		githubApiSpy.checkUserCredentialsSpy.mockResolvedValueOnce({
+			username: 'krakrakra',
+			pat: 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+		})
+
+		prismaClientSpy.findFirst.mockResolvedValueOnce(null)
+
+		generateJwtTokenProviderSpy.mockReturnValueOnce('123456789')
+
+		await expect(service.authenticateUser(username, pat)).resolves.not.toThrow()
+		expect(prismaClientSpy.findFirst).toHaveBeenCalledTimes(1)
+		expect(api.checkUserCredentials).toHaveBeenCalledWith(username, pat)
+		expect(prismaClientSpy.create).toHaveBeenCalledTimes(1)
+		expect(generateJwtTokenProviderSpy).toHaveBeenCalledTimes(1)
+	})
+	it('should not be able to authenticate user with empty username', async () => {
+		const username = ''
+		const pat = 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+
+		await expect(service.authenticateUser(username, pat)).rejects.toThrow()
+		expect(prismaClientSpy.findFirst).not.toHaveBeenCalled()
+		expect(api.checkUserCredentials).not.toHaveBeenCalled()
+		expect(prismaClientSpy.create).not.toHaveBeenCalled()
+		expect(prismaClientSpy.update).not.toHaveBeenCalled()
+		expect(generateJwtTokenProviderSpy).not.toHaveBeenCalled()
+	})
+	it('should not be able to authenticate user with empty pat', async () => {
+		const username = 'krakrakra'
+		const pat = ''
+
+		await expect(service.authenticateUser(username, pat)).rejects.toThrow()
+		expect(prismaClientSpy.findFirst).not.toHaveBeenCalled()
+		expect(api.checkUserCredentials).not.toHaveBeenCalled()
+		expect(prismaClientSpy.create).not.toHaveBeenCalled()
+		expect(prismaClientSpy.update).not.toHaveBeenCalled()
+		expect(generateJwtTokenProviderSpy).not.toHaveBeenCalled()
+	})
+	it('should not be able to authenticate user with pat that does not begin with ghp_', async () => {
+		const username = 'krakrakra'
+		const pat = '86f4ad856f6d85f4d4fds56fasdf'
+
+		await expect(service.authenticateUser(username, pat)).rejects.toThrow()
+		expect(prismaClientSpy.findFirst).not.toHaveBeenCalled()
+		expect(api.checkUserCredentials).not.toHaveBeenCalled()
+		expect(prismaClientSpy.create).not.toHaveBeenCalled()
+		expect(prismaClientSpy.update).not.toHaveBeenCalled()
+		expect(generateJwtTokenProviderSpy).not.toHaveBeenCalled()
 	})
 })
