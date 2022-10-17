@@ -1,8 +1,8 @@
-import express from 'express'
-import { UserController } from '../controllers/user-controller'
-import { Authenticate } from '../middlewares/user-authentication'
+import express from 'express';
+import { UserController } from '../controllers/user-controller';
+import { Authenticate } from '../middlewares/user-authentication';
 
-export const routerUsers = express.Router()
+export const routerUsers = express.Router();
 
 routerUsers
 	.put('/users/following/:userToFollow', Authenticate, UserController.followUser)
@@ -12,4 +12,4 @@ routerUsers
 	.get('/user/stars', Authenticate, UserController.getNumberOfStars)
 	.get('/user/commits', Authenticate, UserController.getNumberOfCommits)
 	.get('/user/pulls', Authenticate, UserController.getNumberOfPulls)
-	.get('/user/languages', Authenticate, UserController.getUsedLanguages)
+	.get('/user/languages', Authenticate, UserController.getUsedLanguages);

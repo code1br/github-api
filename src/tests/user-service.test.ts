@@ -1,13 +1,13 @@
-import { GitHubApi } from "../apis/github-api"
-import { UserService } from "../service/user-service"
+import { GitHubApi } from '../apis/github-api';
+import { UserService } from '../service/user-service';
 
-const followUserSpy = jest.fn()
-const unfollowUserSpy = jest.fn()
-const listRepositoriesSpy = jest.fn()
-const getRepositoryCommitsSpy = jest.fn()
-const getRepositoryPullsSpy = jest.fn()
-const getUsedLanguagesSpy = jest.fn()
-const searchUserSpy = jest.fn()
+const followUserSpy = jest.fn();
+const unfollowUserSpy = jest.fn();
+const listRepositoriesSpy = jest.fn();
+const getRepositoryCommitsSpy = jest.fn();
+const getRepositoryPullsSpy = jest.fn();
+const getUsedLanguagesSpy = jest.fn();
+const searchUserSpy = jest.fn();
 
 const api: GitHubApi = {
 	followUser: followUserSpy,
@@ -17,94 +17,94 @@ const api: GitHubApi = {
 	getRepositoryPulls: getRepositoryPullsSpy,
 	getUsedLanguages: getUsedLanguagesSpy,
 	searchUser: searchUserSpy
-}
+};
 
-const service = new UserService(api)
+const service = new UserService(api);
 
 jest.mock('../middlewares/user-authentication', () => ({
 	get CURRENT_USER() {
 		return {
 			login: 'AAAAAAAA',
 			PAT: 'asdasfdgasfdgr435t345t326t5234yg54qg5rg45'
-		}
+		};
 	}
 }));
 
 describe('Follow a user', () => {
 	it('should be able to follow a user', () => {
-		const loginToFollow: string = "BBBBBBB"
+		const loginToFollow = 'BBBBBBB';
 
 		const apiResponse = {
-			"status": 204
-		}
+			'status': 204
+		};
 
-		followUserSpy.mockResolvedValueOnce(apiResponse)
+		followUserSpy.mockResolvedValueOnce(apiResponse);
 
-		expect(service.followUser(loginToFollow)).resolves.not.toThrow()
+		expect(service.followUser(loginToFollow)).resolves.not.toThrow();
 
-		expect(followUserSpy).toHaveBeenCalledWith(loginToFollow)
-	})
+		expect(followUserSpy).toHaveBeenCalledWith(loginToFollow);
+	});
 
 	it('should not be able to follow a user with empty login to follow', () => {
-		const loginToFollow: string = ""
+		const loginToFollow = '';
 
-		expect(service.followUser(loginToFollow)).rejects.toThrow()
+		expect(service.followUser(loginToFollow)).rejects.toThrow();
 
-		expect(followUserSpy).not.toHaveBeenCalled()
-	})
+		expect(followUserSpy).not.toHaveBeenCalled();
+	});
 
 	it('should rejects when api reponse status code is not 204', () => {
-		const loginToFollow: string = "BBBBBBB"
+		const loginToFollow = 'BBBBBBB';
 
 		const apiResponse = {
-			"status": 400
-		}
+			'status': 400
+		};
 
-		followUserSpy.mockResolvedValueOnce(apiResponse)
+		followUserSpy.mockResolvedValueOnce(apiResponse);
 
-		expect(service.followUser(loginToFollow)).rejects.toThrow()
+		expect(service.followUser(loginToFollow)).rejects.toThrow();
 
-		expect(followUserSpy).toHaveBeenCalledWith(loginToFollow)
-	})
-})
+		expect(followUserSpy).toHaveBeenCalledWith(loginToFollow);
+	});
+});
 
 describe('Unfollow a user', () => {
 	it('should be able to unfollow a user', () => {
-		const loginToUnfollow: string = "BBBBBBB"
+		const loginToUnfollow = 'BBBBBBB';
 
 		const apiResponse = {
-			"status": 204
-		}
+			'status': 204
+		};
 
-		unfollowUserSpy.mockResolvedValueOnce(apiResponse)
+		unfollowUserSpy.mockResolvedValueOnce(apiResponse);
 
-		expect(service.unfollowUser(loginToUnfollow)).resolves.not.toThrow()
+		expect(service.unfollowUser(loginToUnfollow)).resolves.not.toThrow();
 
-		expect(unfollowUserSpy).toHaveBeenCalledWith(loginToUnfollow)
-	})
+		expect(unfollowUserSpy).toHaveBeenCalledWith(loginToUnfollow);
+	});
 
 	it('should not be able to unfollow a user with empty login to follow', () => {
-		const loginToUnfollow: string = ""
+		const loginToUnfollow = '';
 
-		expect(service.unfollowUser(loginToUnfollow)).rejects.toThrow()
+		expect(service.unfollowUser(loginToUnfollow)).rejects.toThrow();
 
-		expect(followUserSpy).not.toHaveBeenCalled()
-	})
+		expect(followUserSpy).not.toHaveBeenCalled();
+	});
 
 	it('should rejects when api reponse status code is not 204', () => {
-		const loginToFollow: string = "BBBBBBB"
+		const loginToFollow = 'BBBBBBB';
 
 		const apiResponse = {
-			"status": 400
-		}
+			'status': 400
+		};
 
-		unfollowUserSpy.mockResolvedValueOnce(apiResponse)
+		unfollowUserSpy.mockResolvedValueOnce(apiResponse);
 
-		expect(service.unfollowUser(loginToFollow)).rejects.toThrow()
+		expect(service.unfollowUser(loginToFollow)).rejects.toThrow();
 
-		expect(unfollowUserSpy).toHaveBeenCalledWith(loginToFollow)
-	})
-})
+		expect(unfollowUserSpy).toHaveBeenCalledWith(loginToFollow);
+	});
+});
 
 describe('List repositories', () => {
 	it('should be able to list repositories', async () => {
@@ -122,7 +122,7 @@ describe('List repositories', () => {
 				owner: 'BBBBBBB',
 				private: true
 			}
-		]
+		];
 
 
 		const apiResponse = [
@@ -139,17 +139,17 @@ describe('List repositories', () => {
 				owner: { login: 'BBBBBBB' },
 				private: true
 			}
-		]
+		];
 
-		listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
+		listRepositoriesSpy.mockResolvedValueOnce(apiResponse);
 
-		const result = await service.listRepositories()
+		const result = await service.listRepositories();
 
-		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
-	})
-})
+		expect(result).toEqual(expectedResult);
+		expect(listRepositoriesSpy).toHaveBeenCalled();
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1);
+	});
+});
 
 describe('Get Stars', () => {
 	it('should be able to get the number of starts in all repositories', async () => {
@@ -170,20 +170,20 @@ describe('Get Stars', () => {
 				private: true,
 				stargazers_count: 4
 			}
-		]
+		];
 
-		const expectedResult = { stars: 9 }
+		const expectedResult = { stars: 9 };
 
-		listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
+		listRepositoriesSpy.mockResolvedValueOnce(apiResponse);
 
-		const result = await service.getNumberOfStars()
+		const result = await service.getNumberOfStars();
 
-		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
+		expect(result).toEqual(expectedResult);
+		expect(listRepositoriesSpy).toHaveBeenCalled();
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1);
 
-	})
-})
+	});
+});
 
 describe('Get Commits', () => {
 	it('should be able to get the user number of commits in all repositories', async () => {
@@ -201,7 +201,7 @@ describe('Get Commits', () => {
 				owner: { login: 'BBBBBBB' },
 				private: true
 			}
-		]
+		];
 
 		const getRepositoryCommitsApiResponse1 = [
 			{
@@ -304,7 +304,7 @@ describe('Get Commits', () => {
 					login: 'BB'
 				}
 			}
-		]
+		];
 		const getRepositoryCommitsApiResponse2 = [
 			{
 				commit: {
@@ -352,7 +352,7 @@ describe('Get Commits', () => {
 					login: 'BBB'
 				}
 			}
-		]
+		];
 		const getRepositoryCommitsApiResponse3 = [
 			{
 				commit: {
@@ -400,31 +400,31 @@ describe('Get Commits', () => {
 					login: 'BBB'
 				}
 			}
-		]
+		];
 
 		const expectedResult = {
 			commits_in_current_year: 5,
 			total_commits: 13
-		}
+		};
 
-		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse);
 
-		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse1)
-		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse2)
-		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse3)
+		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse1);
+		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse2);
+		getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse3);
 
-		const result = await service.getNumberOfCommits()
+		const result = await service.getNumberOfCommits();
 
-		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
-		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
-		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
-		expect(getRepositoryCommitsSpy).toHaveBeenCalledTimes(3)
+		expect(result).toEqual(expectedResult);
+		expect(listRepositoriesSpy).toHaveBeenCalled();
+		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name);
+		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name);
+		expect(getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name);
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1);
+		expect(getRepositoryCommitsSpy).toHaveBeenCalledTimes(3);
 
-	})
-})
+	});
+});
 
 describe('Get Pulls', () => {
 	it('should be able to get the user number of pulls in all repositories', async () => {
@@ -442,7 +442,7 @@ describe('Get Pulls', () => {
 				owner: { login: 'BBBBBBB' },
 				private: true
 			}
-		]
+		];
 
 		const getRepositoryPullsApiResponse1 = [
 			{
@@ -511,7 +511,7 @@ describe('Get Pulls', () => {
 				},
 				created_at: '2021-05-22T18:45:42Z',
 			}
-		]
+		];
 		const getRepositoryPullsApiResponse2 = [
 			{
 				user: {
@@ -559,7 +559,7 @@ describe('Get Pulls', () => {
 				},
 				created_at: '2021-05-22T18:45:42Z',
 			}
-		]
+		];
 		const getRepositoryPullsApiResponse3 = [
 			{
 				user: {
@@ -592,31 +592,31 @@ describe('Get Pulls', () => {
 				},
 				created_at: '2021-05-22T18:45:42Z',
 			}
-		]
+		];
 
 		const expectedResult = {
 			pulls_in_current_year: 6,
 			total_pulls: 10
-		}
+		};
 
-		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse);
 
-		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse1)
-		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse2)
-		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse3)
+		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse1);
+		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse2);
+		getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse3);
 
-		const result = await service.getNumberOfPulls()
+		const result = await service.getNumberOfPulls();
 
-		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
-		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
-		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
-		expect(getRepositoryPullsSpy).toHaveBeenCalledTimes(3)
+		expect(result).toEqual(expectedResult);
+		expect(listRepositoriesSpy).toHaveBeenCalled();
+		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name);
+		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name);
+		expect(getRepositoryPullsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name);
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1);
+		expect(getRepositoryPullsSpy).toHaveBeenCalledTimes(3);
 
-	})
-})
+	});
+});
 
 describe('Get Used Languages', () => {
 	it('should be able to get used languages', async () => {
@@ -634,93 +634,93 @@ describe('Get Used Languages', () => {
 				owner: { login: 'BBBBBBB' },
 				private: true
 			}
-		]
+		];
 
 		const UsedLanguagesApiResponse1 = {
 			data: {
-				"Java": 6854656,
-				"Python": 22326
+				'Java': 6854656,
+				'Python': 22326
 			},
 			status: 200
-		}
+		};
 
 		const UsedLanguagesApiResponse2 = {
 			data: {
-				"Ruby": 635,
-				"Typescript": 5641654
+				'Ruby': 635,
+				'Typescript': 5641654
 			},
 			status: 200
-		}
+		};
 
 		const UsedLanguagesApiResponse3 = {
 			data: {
-				"Java": 3526156,
-				"Python": 6584135,
-				"Typescript": 8896544
+				'Java': 3526156,
+				'Python': 6584135,
+				'Typescript': 8896544
 			},
 			status: 200
-		}
+		};
 
 		const expectedResult = {
-			"Java": 32.93,
-			"Python": 20.96,
-			"Typescript": 46.11,
-			"Ruby": 0.0
-		}
+			'Java': 32.93,
+			'Python': 20.96,
+			'Typescript': 46.11,
+			'Ruby': 0.0
+		};
 
-		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+		listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse);
 
-		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse1)
-		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse2)
-		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse3)
+		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse1);
+		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse2);
+		getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse3);
 
-		const result = await service.getUsedLanguages()
+		const result = await service.getUsedLanguages();
 
-		expect(result).toEqual(expectedResult)
-		expect(listRepositoriesSpy).toHaveBeenCalled()
-		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
-		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
-		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
-		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1)
-		expect(getUsedLanguagesSpy).toHaveBeenCalledTimes(3)
+		expect(result).toEqual(expectedResult);
+		expect(listRepositoriesSpy).toHaveBeenCalled();
+		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name);
+		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name);
+		expect(getUsedLanguagesSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name);
+		expect(listRepositoriesSpy).toHaveBeenCalledTimes(1);
+		expect(getUsedLanguagesSpy).toHaveBeenCalledTimes(3);
 
-	})
-})
+	});
+});
 
 describe('Get a user', () => {
 	it('should be able to get a user', () => {
-		const usernameToGet: string = "BBBBBBB"
+		const usernameToGet = 'BBBBBBB';
 
 		const apiResponse = {
-			"status": 200
-		}
+			'status': 200
+		};
 
-		searchUserSpy.mockResolvedValueOnce(apiResponse)
+		searchUserSpy.mockResolvedValueOnce(apiResponse);
 
-		expect(service.searchUser(usernameToGet)).resolves.not.toThrow()
+		expect(service.searchUser(usernameToGet)).resolves.not.toThrow();
 
-		expect(searchUserSpy).toHaveBeenCalledWith(usernameToGet)
-	})
+		expect(searchUserSpy).toHaveBeenCalledWith(usernameToGet);
+	});
 
 	it('should not be able to get a user with empty login to get', () => {
-		const usernameToGet: string = ""
+		const usernameToGet = '';
 
-		expect(service.searchUser(usernameToGet)).rejects.toThrow()
+		expect(service.searchUser(usernameToGet)).rejects.toThrow();
 
-		expect(searchUserSpy).not.toHaveBeenCalled()
-	})
+		expect(searchUserSpy).not.toHaveBeenCalled();
+	});
 
 	it('should rejects when api reponse status code is not 200', () => {
-		const usernameToGet: string = "BBBBBBB"
+		const usernameToGet = 'BBBBBBB';
 
 		const apiResponse = {
-			"status": 400
-		}
+			'status': 400
+		};
 
-		searchUserSpy.mockResolvedValueOnce(apiResponse)
+		searchUserSpy.mockResolvedValueOnce(apiResponse);
 
-		expect(service.searchUser(usernameToGet)).rejects.toThrow()
+		expect(service.searchUser(usernameToGet)).rejects.toThrow();
 
-		expect(searchUserSpy).toHaveBeenCalledWith(usernameToGet)
-	})
-})
+		expect(searchUserSpy).toHaveBeenCalledWith(usernameToGet);
+	});
+});
