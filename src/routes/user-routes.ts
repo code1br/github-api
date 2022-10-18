@@ -2,7 +2,7 @@ import express from 'express'
 import { UserController } from '../controllers/user-controller'
 import { ensureAuthentication } from '../middlewares/user-ensureAuthentication'
 
-export const routerUsers = express.Router()
+export const routerUsers = express.Router();
 
 routerUsers
 	.post('/user/login', UserController.authenticateUser)

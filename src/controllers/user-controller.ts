@@ -6,7 +6,7 @@ import { BaseController } from "./base-controller";
 
 export class UserController extends BaseController{
 	private getService() {
-		return new UserService(new GitHubRestfullApi)
+		return new UserService(new GitHubRestfullApi);
 	}
 
 	static async authenticateUser(req: Request, res: Response) {
@@ -23,7 +23,7 @@ export class UserController extends BaseController{
 		super.execute(req, res, async () => {
 			const userToFollow = req.params.userToFollow
 
-			await new UserController().getService().followUser(userToFollow)
+			await new UserController().getService().followUser(userToFollow);
 
 			res.status(204).send()
 		})
@@ -33,7 +33,7 @@ export class UserController extends BaseController{
 		super.execute(req, res, async () => {
 			const userToUnfollow = req.params.userToUnfollow
 
-			await new UserController().getService().unfollowUser(userToUnfollow)
+			await new UserController().getService().unfollowUser(userToUnfollow);
 
 			res.status(204).send()
 		})

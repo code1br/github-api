@@ -1,8 +1,8 @@
-import { AxiosResponse } from "axios"
-import { GithubCommitModel } from "../model/commit-model"
-import { GithubPullModel } from "../model/pull-model"
-import { GithubRepositoryModel } from "../model/repository-model"
-import { GithubUserModel, UserModel } from "../model/user-model"
+import { AxiosResponse } from 'axios';
+import { GithubCommitModel } from '../model/commit-model';
+import { GithubPullModel } from '../model/pull-model';
+import { GithubRepositoryModel } from '../model/repository-model';
+import { GithubUserModel, UserModel } from '../model/user-model';
 
 export interface GitHubApi {
 	checkUserCredentials: (username: string, pat: string) => Promise<AxiosResponse<any, any>>

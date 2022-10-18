@@ -1,6 +1,6 @@
-import 'dotenv/config'
+import 'dotenv/config';
 
-const server_host = process.env.SERVER_HOST || 'localhost'
+const server_host = process.env.SERVER_HOST || 'localhost';
 
 export default {
 	"openapi": "3.0.0",
@@ -11,12 +11,12 @@ export default {
 			"name": "Eliezer Marques Mafra",
 			"email": "eliezermmafra@live.com"
 		},
-		"version": "1.0.0"
+		'version': '1.0.0'
 	},
-	"servers": [
+	'servers': [
 		{
-			"url": `${server_host}`,
-			"description": "Test API"
+			'url': `${server_host}`,
+			'description': 'Test API'
 		}
 	],
 	"paths": {
@@ -71,21 +71,21 @@ export default {
 				"tags": ["Following"],
 				"parameters": [
 					{
-						"in": "path",
-						"name": "username",
-						"description": "username to follow",
-						"required": true
+						'in': 'path',
+						'name': 'username',
+						'description': 'username to follow',
+						'required': true
 					}
 				],
-				"responses": {
-					"204": {
-						"description": "No Content: Request was sent to Github API"
+				'responses': {
+					'204': {
+						'description': 'No Content: Request was sent to Github API'
 					},
-					"400": {
-						"description": "Bad Request: It was not possible to follow the given user"
+					'400': {
+						'description': 'Bad Request: It was not possible to follow the given user'
 					},
-					"401": {
-						"description": "Unauthorized: Error on authentication"
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
 					}
 				}
 			},
@@ -96,21 +96,21 @@ export default {
 				"tags": ["Following"],
 				"parameters": [
 					{
-						"in": "path",
-						"name": "username",
-						"description": "username to unfollow",
-						"required": true
+						'in': 'path',
+						'name': 'username',
+						'description': 'username to unfollow',
+						'required': true
 					}
 				],
-				"responses": {
-					"204": {
-						"description": "No Content: Request was sent to Github API"
+				'responses': {
+					'204': {
+						'description': 'No Content: Request was sent to Github API'
 					},
-					"400": {
-						"description": "Bad Request: It was not possible to unfollow the given user"
+					'400': {
+						'description': 'Bad Request: It was not possible to unfollow the given user'
 					},
-					"401": {
-						"description": "Unauthorized: Error on authentication"
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
 					}
 				}
 			},
@@ -121,29 +121,29 @@ export default {
 				"tags": ["Following"],
 				"parameters": [
 					{
-						"in": "path",
-						"name": "username",
-						"description": "username to get",
-						"required": true
+						'in': 'path',
+						'name': 'username',
+						'description': 'username to get',
+						'required': true
 					}
 				],
-				"responses": {
-					"200": {
-						"description": "No Content: Request was sent to Github API",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"$ref": "#/components/schemas/User"
+				'responses': {
+					'200': {
+						'description': 'No Content: Request was sent to Github API',
+						'content': {
+							'application/json': {
+								'schema': {
+									'type': 'object',
+									'$ref': '#/components/schemas/User'
 								}
 							}
 						}
 					},
-					"400": {
-						"description": "Bad Request: It was not possible to unfollow the given user"
+					'400': {
+						'description': 'Bad Request: It was not possible to unfollow the given user'
 					},
-					"401": {
-						"description": "Unauthorized: Error on authentication"
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
 					}
 				}
 			}
@@ -166,11 +166,11 @@ export default {
 							}
 						}
 					},
-					"400": {
-						"description": "Bad Request: It was not possible to follow the given user"
+					'400': {
+						'description': 'Bad Request: It was not possible to follow the given user'
 					},
-					"401": {
-						"description": "Unauthorized: Error on authentication"
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
 					}
 				}
 			}
@@ -193,11 +193,11 @@ export default {
 							}
 						}
 					},
-					"400": {
-						"description": "Bad Request: It was not possible to get the number of stars"
+					'400': {
+						'description': 'Bad Request: It was not possible to get the number of stars'
 					},
-					"401": {
-						"description": "Unauthorized: Error on authentication"
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
 					}
 				}
 			}
@@ -220,11 +220,11 @@ export default {
 							}
 						}
 					},
-					"400": {
-						"description": "Bad Request: It was not possible to get the number of commits"
+					'400': {
+						'description': 'Bad Request: It was not possible to get the number of commits'
 					},
-					"401": {
-						"description": "Unauthorized: Error on authentication"
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
 					}
 				}
 			}
@@ -247,11 +247,11 @@ export default {
 							}
 						}
 					},
-					"400": {
-						"description": "Bad Request: It was not possible to get the number of pulls"
+					'400': {
+						'description': 'Bad Request: It was not possible to get the number of pulls'
 					},
-					"401": {
-						"description": "Unauthorized: Error on authentication"
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
 					}
 				}
 			},
@@ -271,47 +271,47 @@ export default {
 									"type": "object",
 									"$ref": "#/components/schemas/Languages"
 								},
-								"examples": {
-									"Response example": {
-										"value": {
-											"languageName1": 50,
-											"languageName2": 20,
-											"languageName3": 10,
-											"languageName4": 20
+								'examples': {
+									'Response example': {
+										'value': {
+											'languageName1': 50,
+											'languageName2': 20,
+											'languageName3': 10,
+											'languageName4': 20
 										}
 									}
 								}
 							}
 						}
 					},
-					"400": {
-						"description": "Bad Request: It was not possible to get the used languages"
+					'400': {
+						'description': 'Bad Request: It was not possible to get the used languages'
 					},
-					"401": {
-						"description": "Unauthorized: Error on authentication"
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
 					}
 				}
 			}
 
 		},
 	},
-	"components": {
-		"schemas": {
-			"Repository": {
-				"type": "array",
-				"items": {
-					"type": "object",
-					"properties": {
-						"name": { "type": "string" },
-						"owner": { "type": "string" },
-						"private": { "type": "boolean" }
+	'components': {
+		'schemas': {
+			'Repository': {
+				'type': 'array',
+				'items': {
+					'type': 'object',
+					'properties': {
+						'name': { 'type': 'string' },
+						'owner': { 'type': 'string' },
+						'private': { 'type': 'boolean' }
 					}
 				}
 			},
-			"Stars": {
-				"type": "object",
-				"properties": {
-					"stars": { "type": "number" }
+			'Stars': {
+				'type': 'object',
+				'properties': {
+					'stars': { 'type': 'number' }
 
 				}
 			},
@@ -359,26 +359,26 @@ export default {
 					"pat": { "type": "string" }
 				}
 			},
-			"Commits": {
-				"type": "object",
-				"properties": {
-					"commits_in_current_year": { "type": "number" },
-					"total_commits": { "type": "number" }
+			'Commits': {
+				'type': 'object',
+				'properties': {
+					'commits_in_current_year': { 'type': 'number' },
+					'total_commits': { 'type': 'number' }
 				}
 
 			},
-			"Pulls": {
-				"type": "object",
-				"properties": {
-					"pulls_in_current_year": { "type": "number" },
-					"total_pulls": { "type": "number" }
+			'Pulls': {
+				'type': 'object',
+				'properties': {
+					'pulls_in_current_year': { 'type': 'number' },
+					'total_pulls': { 'type': 'number' }
 				}
 
 			},
-			"Languages": {
-				"type": "object",
-				"additionalProperties": {
-					"type": "number"
+			'Languages': {
+				'type': 'object',
+				'additionalProperties': {
+					'type': 'number'
 				}
 
 			},
@@ -388,4 +388,4 @@ export default {
 		}
 	}
 
-}
+};

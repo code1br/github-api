@@ -57,52 +57,48 @@ export class UserService {
 
 	async followUser(userToFollow: string) {
 		if (!userToFollow) {
-			throw new Error(`UserToFollow was not provided`);
+			throw new Error('UserToFollow was not provided');
 		}
 
 		const result = await this.GitHubApi.followUser(userToFollow);
 
 		if (result.status != 204) {
-			throw new Error(
-				`Response status different from expected ${result.status}`
-			);
+			throw new Error(`Response status different from expected ${result.status}`);
 		}
 	}
 
 	async unfollowUser(userToUnfollow: string) {
 		if (!userToUnfollow) {
-			throw new Error(`Username was not provided`);
+			throw new Error('Username was not provided');
 		}
 
 		const result = await this.GitHubApi.unfollowUser(userToUnfollow);
 
+
 		if (result.status != 204) {
-			throw new Error(
-				`Response status different from expected ${result.status}`
-			);
+			throw new Error(`Response status different from expected ${result.status}`);
 		}
 	}
 
 	async listRepositories() {
-		let repositories: RepositoryModel[] = [];
+		const repositories: RepositoryModel[] = [];
 
-		const githubRepositories: GithubRepositoryModel[] =
-			await this.GitHubApi.listRepositories();
+		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories();
 
-		for (let repository of githubRepositories) {
+		for (const repository of githubRepositories) {
 			repositories.push({
 				name: repository.name,
 				owner: repository.owner.login,
-				private: repository.private,
+				private: repository.private
 			});
 		}
 
 		return repositories;
+
 	}
 
 	async getNumberOfStars() {
-		const githubRepositories: GithubRepositoryModel[] =
-			await this.GitHubApi.listRepositories();
+		const githubRepositories: GithubRepositoryModel[] = await this.GitHubApi.listRepositories();
 
 		let numberOfStars = 0;
 
@@ -114,8 +110,7 @@ export class UserService {
 	}
 
 	async getNumberOfCommits() {
-		const repositoriesToSearch: RepositoryModel[] =
-			await this.listRepositories();
+		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories();
 
 		let totalCommits = 0;
 		let totalCommitsInCurrentYear = 0;
@@ -123,21 +118,14 @@ export class UserService {
 		const currentYear = new Date().getFullYear();
 
 		for (const repository of repositoriesToSearch) {
-			const commits: GithubCommitModel[] =
-				await this.GitHubApi.getRepositoryCommits(
-					repository.owner,
-					repository.name
-				);
+			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(repository.owner, repository.name);
 
 			for (const commit of commits) {
 				if (commit.author) {
 					if (commit.author.login == CURRENT_USER.login) {
 						totalCommits++;
 
-						if (
-							new Date(commit.commit.committer.date).getFullYear() ==
-							currentYear
-						) {
+						if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
 							totalCommitsInCurrentYear++;
 						}
 					}
@@ -147,12 +135,13 @@ export class UserService {
 
 		return {
 			commits_in_current_year: totalCommitsInCurrentYear,
-			total_commits: totalCommits,
+			total_commits: totalCommits
 		};
+
 	}
 
 	async getNumberOfPulls() {
-		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories();
+		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories();
 
 		let totalPulls = 0;
 		let totalPullsInCurrentYear = 0;
@@ -160,10 +149,7 @@ export class UserService {
 		const currentYear = new Date().getFullYear();
 
 		for (const repository of repositoriesToSearch) {
-			const pulls: GithubPullModel[] = await this.GitHubApi.getRepositoryPulls(
-				repository.owner,
-				repository.name
-			);
+			const pulls: GithubPullModel[] = await this.GitHubApi.getRepositoryPulls(repository.owner, repository.name);
 
 			for (const pull of pulls) {
 				if (pull.user.login == CURRENT_USER.login) {
@@ -178,33 +164,29 @@ export class UserService {
 
 		return {
 			pulls_in_current_year: totalPullsInCurrentYear,
-			total_pulls: totalPulls,
+			total_pulls: totalPulls
 		};
+
 	}
 
 	async getUsedLanguages() {
 		type LanguageType = { [key: string]: number };
 
-		let repositoriesToSearch: RepositoryModel[] = await this.listRepositories();
+		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories();
 
-		let languagesBytesSize: LanguageType = {};
+		const languagesBytesSize: LanguageType = {};
 
-		let languagesPercentageUsage: LanguageType = {};
+		const languagesPercentageUsage: LanguageType = {};
 
-		let totalBytes: number = 0;
+		let totalBytes = 0;
 
 		for (const repository of repositoriesToSearch) {
-			const result = await this.GitHubApi.getUsedLanguages(
-				repository.owner,
-				repository.name
-			);
+			const result = await this.GitHubApi.getUsedLanguages(repository.owner, repository.name);
 			const usedLanguages = result.data as LanguageType;
 
 			if (result.status == 200) {
 				Object.entries(usedLanguages).forEach(([key, value]) => {
-					let newValue = languagesBytesSize[key]
-						? languagesBytesSize[key] + value
-						: value;
+					const newValue = languagesBytesSize[key] ? (languagesBytesSize[key] + value) : value;
 
 					Object.assign(languagesBytesSize, { [key]: newValue });
 				});
@@ -216,25 +198,23 @@ export class UserService {
 		});
 
 		Object.entries(languagesBytesSize).forEach(([key, value]) => {
-			Object.assign(languagesPercentageUsage, {
-				[key]: parseFloat(((value * 100) / totalBytes).toFixed(2)),
-			});
+			Object.assign(languagesPercentageUsage, { [key]: parseFloat((value * 100 / totalBytes).toFixed(2)) });
 		});
+
+		return languagesPercentageUsage;
 
 		return languagesPercentageUsage;
 	}
 
 	async searchUser(username: string) {
 		if (!username) {
-			throw new Error(`UserToSearch was not provided`);
+			throw new Error('UserToSearch was not provided');
 		}
 
 		const result = await this.GitHubApi.searchUser(username);
 
 		if (result.status != 200) {
-			throw new Error(
-				`Response status different from expected ${result.status}`
-			);
+			throw new Error(`Response status different from expected ${result.status}`);
 		} else {
 			return result.data;
 		}

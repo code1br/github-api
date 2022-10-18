@@ -45,6 +45,31 @@ SERVER_HOST = <The host where your application will be run>
 SERVER_IP = <The ip address where your application will be run>
 ```
 
+## ⚙️ Installation with Docker
+1. Clone the repository
+
+1. Create the `.env` file
+```
+cp .env.example .env
+```
+
+1. Build the project using docker compose command
+```
+docker compose build
+```
+
+1. Run the project
+```
+docker compose up
+```
+
+1. Run tests
+```
+docker exec -it github-api-web-1 npm test
+```
+`Note: github-api-web-1 is the container name, you can also use the container id`
+
+
 ## ⚒ Testing
 
 1. After following the steps above, run the following command
