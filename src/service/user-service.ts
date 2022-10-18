@@ -34,6 +34,13 @@ export class UserService {
 		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || 'default')
 		
 		const encryptedPat = cryptr.encrypt(pat)
+
+		if(userOnDatabase && cryptr.decrypt(userOnDatabase.pat) != pat){
+			await client.user.update({
+				where: { username },
+				data: { pat: encryptedPat }
+			})
+		}
 		
 		const token = new GenerateJwtTokenProvider().execute(username)
 

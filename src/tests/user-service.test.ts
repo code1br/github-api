@@ -1,3 +1,4 @@
+import Cryptr from 'cryptr';
 import { GitHubApi } from '../apis/github-api';
 import { UserService } from '../service/user-service';
 
@@ -756,6 +757,9 @@ describe('Authenticate user', () => {
 	it('should be able to authenticate user that already exists on database', async () => {
 		const username = 'krakrakra'
 		const pat = 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || 'default')
+		
+		const encryptedPat = cryptr.encrypt(pat)
 
 		githubApiSpy.checkUserCredentialsSpy.mockResolvedValueOnce({
 			data: {
@@ -764,9 +768,9 @@ describe('Authenticate user', () => {
 		})
 
 		prismaClientSpy.findFirst.mockResolvedValueOnce({
-			id: '6a8564da45d6fs56564a56d',
-			username: username,
-			pat: 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+			username: 'krakrakra',
+			pat: encryptedPat,
+			token: ''
 		})
 
 		generateJwtTokenProviderSpy.mockReturnValueOnce('123456789')
@@ -795,6 +799,34 @@ describe('Authenticate user', () => {
 		expect(prismaClientSpy.findFirst).toHaveBeenCalledTimes(1)
 		expect(api.checkUserCredentials).toHaveBeenCalledWith(username, pat)
 		expect(prismaClientSpy.create).toHaveBeenCalledTimes(1)
+		expect(generateJwtTokenProviderSpy).toHaveBeenCalledTimes(1)
+	})
+	it('should be able to authenticate user that has a different pat on database', async () => {
+		const username = 'krakrakra'
+		const pat = 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+
+		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || 'default')
+		
+		const encryptedPat = cryptr.encrypt('ghp_86f4ad856f6d85f4d4fds5612345')
+
+		githubApiSpy.checkUserCredentialsSpy.mockResolvedValueOnce({
+			data: {
+				login: 'krakrakra'
+			}
+		})
+
+		prismaClientSpy.findFirst.mockResolvedValueOnce({
+			username: 'krakrakra',
+			pat: encryptedPat,
+			token: ''
+		})
+
+		generateJwtTokenProviderSpy.mockReturnValueOnce('123456789')
+
+		await expect(service.authenticateUser(username, pat)).resolves.not.toThrow()
+		expect(prismaClientSpy.findFirst).toHaveBeenCalledTimes(1)
+		expect(api.checkUserCredentials).toHaveBeenCalledWith(username, pat)
+		expect(prismaClientSpy.update).toHaveBeenCalledTimes(2)
 		expect(generateJwtTokenProviderSpy).toHaveBeenCalledTimes(1)
 	})
 	it('should not be able to authenticate user with unmatched username', async () => {
