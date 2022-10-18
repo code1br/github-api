@@ -202,8 +202,6 @@ export class UserService {
 		});
 
 		return languagesPercentageUsage;
-
-		return languagesPercentageUsage;
 	}
 
 	async searchUser(username: string) {
