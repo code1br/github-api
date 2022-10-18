@@ -1,7 +1,6 @@
 import { GitHubRestfullApi } from "../apis/restfull/github-restfull-api";
 import { UserService } from "../service/user-service";
-import { Request, Response } from "express"
-import { clearCurrentUser } from "../middlewares/user-ensureAuthentication";
+import { Request, Response } from "express";
 import { BaseController } from "./base-controller";
 
 

@@ -22,6 +22,10 @@ export class UserService {
 		}
 		
 		const apiResponse = await this.GitHubApi.checkUserCredentials(username, pat)
+
+		if(apiResponse.data.login != username){
+			throw new Error(`Username does not match`)
+		}
 		
 		const userOnDatabase = await client.user.findFirst({
 			where: { username }
@@ -34,12 +38,12 @@ export class UserService {
 		const token = new GenerateJwtTokenProvider().execute(username)
 
 		if (!userOnDatabase) {
-			const createdUser = await client.user.create({
+			await client.user.create({
 				data: {
 					username,
 					pat: encryptedPat,
 					token
-				},
+				}
 			})
 		}else{
 			await client.user.update({

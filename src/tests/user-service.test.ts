@@ -758,8 +758,9 @@ describe('Authenticate user', () => {
 		const pat = 'ghp_86f4ad856f6d85f4d4fds56fasdf'
 
 		githubApiSpy.checkUserCredentialsSpy.mockResolvedValueOnce({
-			username: 'krakrakra',
-			pat: 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+			data: {
+				login: 'krakrakra'
+			}
 		})
 
 		prismaClientSpy.findFirst.mockResolvedValueOnce({
@@ -781,8 +782,9 @@ describe('Authenticate user', () => {
 		const pat = 'ghp_86f4ad856f6d85f4d4fds56fasdf'
 
 		githubApiSpy.checkUserCredentialsSpy.mockResolvedValueOnce({
-			username: 'krakrakra',
-			pat: 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+			data: {
+				login: 'krakrakra'
+			}
 		})
 
 		prismaClientSpy.findFirst.mockResolvedValueOnce(null)
@@ -794,6 +796,27 @@ describe('Authenticate user', () => {
 		expect(api.checkUserCredentials).toHaveBeenCalledWith(username, pat)
 		expect(prismaClientSpy.create).toHaveBeenCalledTimes(1)
 		expect(generateJwtTokenProviderSpy).toHaveBeenCalledTimes(1)
+	})
+	it('should not be able to authenticate user with unmatched username', async () => {
+		const username = 'krakrakra'
+		const pat = 'ghp_86f4ad856f6d85f4d4fds56fasdf'
+
+		githubApiSpy.checkUserCredentialsSpy.mockResolvedValueOnce({
+			data: {
+				login: 'brobro'
+			}
+		})
+
+		prismaClientSpy.findFirst.mockResolvedValueOnce(null)
+
+		generateJwtTokenProviderSpy.mockReturnValueOnce('123456789')
+
+		await expect(service.authenticateUser(username, pat)).rejects.toThrow()
+		expect(api.checkUserCredentials).toHaveBeenCalledWith(username, pat)
+		expect(prismaClientSpy.findFirst).not.toHaveBeenCalled()
+		expect(prismaClientSpy.create).not.toHaveBeenCalled()
+		expect(prismaClientSpy.update).not.toHaveBeenCalled()
+		expect(generateJwtTokenProviderSpy).not.toHaveBeenCalled()
 	})
 	it('should not be able to authenticate user with empty username', async () => {
 		const username = ''
