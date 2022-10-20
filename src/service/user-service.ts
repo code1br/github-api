@@ -1,14 +1,66 @@
-import { GitHubApi } from '../apis/github-api';
-import { CURRENT_USER } from '../middlewares/user-authentication';
-import { GithubCommitModel } from '../model/commit-model';
-import { GithubPullModel } from '../model/pull-model';
-import { GithubRepositoryModel, RepositoryModel } from '../model/repository-model';
-import { UserModel } from '../model/user-model';
+import { GitHubApi } from "../apis/github-api";
+import { CURRENT_USER } from "../middlewares/user-ensureAuthentication";
+import { GithubCommitModel } from "../model/commit-model";
+import { GithubPullModel } from "../model/pull-model";
+import { GithubRepositoryModel, RepositoryModel } from "../model/repository-model";
+import { client } from "../prisma/client";
+import { GenerateJwtTokenProvider } from "../provider/generate-jwt-token-provider";
+import Cryptr from "cryptr";
 
 export class UserService {
-	constructor(
-		private GitHubApi: GitHubApi
-	) { }
+	constructor(private GitHubApi: GitHubApi) { }
+
+	async authenticateUser(username: string, pat: string) {
+		if(!username){
+			throw new Error(`Username was not provided`)
+		}
+		if(!pat){
+			throw new Error(`PAT was not provided`)
+		}
+		if(!pat.startsWith('ghp_')){
+			throw new Error(`PAT is not valid`)
+		}
+		
+		const apiResponse = await this.GitHubApi.checkUserCredentials(username, pat)
+
+		if(apiResponse.data.login != username){
+			throw new Error(`Username does not match`)
+		}
+		
+		const userOnDatabase = await client.user.findFirst({
+			where: { username }
+		})
+		
+		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || 'default')
+		
+		const encryptedPat = cryptr.encrypt(pat)
+
+		if(userOnDatabase && cryptr.decrypt(userOnDatabase.pat) != pat){
+			await client.user.update({
+				where: { username },
+				data: { pat: encryptedPat }
+			})
+		}
+		
+		const token = new GenerateJwtTokenProvider().execute(username)
+
+		if (!userOnDatabase) {
+			await client.user.create({
+				data: {
+					username,
+					pat: encryptedPat,
+					token
+				}
+			})
+		}else{
+			await client.user.update({
+				where: { username },
+				data: { token }
+			})
+		}
+
+		return token
+	}
 
 	async followUser(userToFollow: string) {
 		if (!userToFollow) {
@@ -86,7 +138,6 @@ export class UserService {
 					}
 				}
 			}
-
 		}
 
 		return {
@@ -115,7 +166,6 @@ export class UserService {
 						totalPullsInCurrentYear++;
 					}
 				}
-
 			}
 		}
 
@@ -127,7 +177,7 @@ export class UserService {
 	}
 
 	async getUsedLanguages() {
-		type LanguageType = { [key: string]: number }
+		type LanguageType = { [key: string]: number };
 
 		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories();
 
@@ -159,7 +209,6 @@ export class UserService {
 		});
 
 		return languagesPercentageUsage;
-
 	}
 
 	async searchUser(username: string) {

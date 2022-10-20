@@ -1,9 +1,9 @@
-import { githubApi } from '../../config/github-api-config';
-import { GitHubApi } from '../github-api';
-import { GithubRepositoryModel } from '../../model/repository-model';
-import { GithubCommitModel } from '../../model/commit-model';
-import { GithubPullModel } from '../../model/pull-model';
-import { CURRENT_USER } from '../../middlewares/user-authentication';
+import { githubApi } from "../../config/github-api-config";
+import { GitHubApi } from "../github-api";
+import { GithubRepositoryModel } from "../../model/repository-model";
+import { GithubCommitModel } from "../../model/commit-model";
+import { GithubPullModel } from "../../model/pull-model";
+import { CURRENT_USER } from "../../middlewares/user-ensureAuthentication";
 
 export class GitHubRestfullApi implements GitHubApi {
 	GitHubBasicAuth: { auth: { username: string, password: string }, validateStatus: () => boolean };
@@ -16,6 +16,15 @@ export class GitHubRestfullApi implements GitHubApi {
 			},
 			validateStatus: () => true
 		};
+	}
+
+	async checkUserCredentials(username: string, pat: string){
+		return await githubApi.get('/user', {
+			auth: {
+				username,
+				password: pat
+			}
+		})
 	}
 
 	async followUser(userToFollow: string) {
