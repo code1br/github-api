@@ -3,7 +3,7 @@ services:
   web:
     image: github-api:latest
     build: .
-    command: bash -c "npx nodemon ./src/server.ts"
+    command: npm run dev
     stdin_open: true
     tty: true
     volumes:
