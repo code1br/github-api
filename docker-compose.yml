@@ -9,11 +9,30 @@ services:
     volumes:
       - .:/app
     ports:
-      - "3000:3000"
+      - 3000:3000
+    environment:
+      DATABASE_URL: "postgres://postgres:postgres_pass@postgres:5432"
+      POSTGRES_DB: github-api
     env_file:
       - .env
     networks:
       - github-api
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15.0
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres_pass
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - github-api
+
+volumes:
+  postgres:
 
 networks:
   github-api:
