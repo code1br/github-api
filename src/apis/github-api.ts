@@ -14,4 +14,6 @@ export interface GitHubApi {
 	getUsedLanguages: (owner: string, repositoryName: string) => Promise<AxiosResponse<any, any>>
 	getUser: (username: string) => Promise<AxiosResponse<any, any>>
 	searchUsers: (params: string) => Promise<GithubSearchUserModel[]>
+	getNumberOfCommitsSinceBegining: (username: string) => Promise<AxiosResponse<any, any>>
+	getNumberOfCommitsSinceDate: (username: string, startDate: string) => Promise<AxiosResponse<any, any>>
 }

@@ -116,29 +116,13 @@ export class UserService {
 		return { stars: numberOfStars }
 	}
 
-	async getNumberOfCommits() {
-		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories()
-
+	async getNumberOfCommitsForAuthUser() {
 		let totalCommits = 0
 		let totalCommitsInCurrentYear = 0
+		const sinceDate = `${new Date().getFullYear()}-01-01`
 
-		const currentYear = new Date().getFullYear()
-
-		for (const repository of repositoriesToSearch) {
-			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(repository.owner, repository.name)
-
-			for (const commit of commits) {
-				if (commit.author) {
-					if (commit.author.login == CURRENT_USER.login) {
-						totalCommits++
-
-						if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
-							totalCommitsInCurrentYear++
-						}
-					}
-				}
-			}
-		}
+		totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceBegining(CURRENT_USER.login)).data.total_count
+		totalCommitsInCurrentYear = (await this.GitHubApi.getNumberOfCommitsSinceDate(CURRENT_USER.login, sinceDate)).data.total_count
 
 		return {
 			commits_in_current_year: totalCommitsInCurrentYear,

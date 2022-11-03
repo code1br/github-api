@@ -2,8 +2,6 @@ import { GitHubRestfullApi } from '../apis/restfull/github-restfull-api'
 import { UserService } from '../service/user-service'
 import { Request, Response } from 'express'
 import { BaseController } from './base-controller'
-import { URLSearchParams } from 'url'
-
 
 export class UserController extends BaseController{
 	private getService() {
@@ -52,9 +50,9 @@ export class UserController extends BaseController{
 		})
 	}
 
-	static async getNumberOfCommits(req: Request, res: Response) {
+	static async getNumberOfCommitsForAuthUser(req: Request, res: Response) {
 		super.execute(req, res, async () => {
-			res.status(200).json(await new UserController().getService().getNumberOfCommits())
+			res.status(200).json(await new UserController().getService().getNumberOfCommitsForAuthUser())
 		})
 	}
 
