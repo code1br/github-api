@@ -132,12 +132,10 @@ export class GitHubRestfullApi implements GitHubApi {
 
 	async getNumberOfCommitsSinceBegining(username: string){
 		const query = new URLSearchParams(`q=author:${username}`).toString()
-		console.log(query)
 		return await githubApi.get(`/search/commits?${query}`, this.GitHubBasicAuth)
 	}
 	async getNumberOfCommitsSinceDate(username: string, startDate: string){
 		const query = new URLSearchParams(`q=author:${username} committer-date:>${startDate}`).toString()
-		console.log(query)
 		return await githubApi.get(`/search/commits?${query}`, this.GitHubBasicAuth)
 	}
 }
