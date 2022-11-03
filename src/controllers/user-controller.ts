@@ -1,12 +1,13 @@
-import { GitHubRestfullApi } from "../apis/restfull/github-restfull-api";
-import { UserService } from "../service/user-service";
-import { Request, Response } from "express";
-import { BaseController } from "./base-controller";
+import { GitHubRestfullApi } from '../apis/restfull/github-restfull-api'
+import { UserService } from '../service/user-service'
+import { Request, Response } from 'express'
+import { BaseController } from './base-controller'
+import { URLSearchParams } from 'url'
 
 
 export class UserController extends BaseController{
 	private getService() {
-		return new UserService(new GitHubRestfullApi);
+		return new UserService(new GitHubRestfullApi)
 	}
 
 	static async authenticateUser(req: Request, res: Response) {
@@ -23,7 +24,7 @@ export class UserController extends BaseController{
 		super.execute(req, res, async () => {
 			const userToFollow = req.params.userToFollow
 
-			await new UserController().getService().followUser(userToFollow);
+			await new UserController().getService().followUser(userToFollow)
 
 			res.status(204).send()
 		})
@@ -33,7 +34,7 @@ export class UserController extends BaseController{
 		super.execute(req, res, async () => {
 			const userToUnfollow = req.params.userToUnfollow
 
-			await new UserController().getService().unfollowUser(userToUnfollow);
+			await new UserController().getService().unfollowUser(userToUnfollow)
 
 			res.status(204).send()
 		})
@@ -71,9 +72,17 @@ export class UserController extends BaseController{
 
 	static async getUser(req: Request, res: Response) {
 		super.execute(req, res, async () => {
-			const userToSearch = req.params.userToSearch
+			const userToGet = req.params.userToGet
 
-			res.status(200).send(await new UserController().getService().getUser(userToSearch))
+			res.status(200).send(await new UserController().getService().getUser(userToGet))
+		})
+	}
+
+	static async searchUsers(req: Request, res: Response) {
+		super.execute(req, res, async () => {
+			const queryObj = req.query as unknown as string
+
+			res.status(200).send(await new UserController().getService().searchUsers(queryObj))
 		})
 	}
 }

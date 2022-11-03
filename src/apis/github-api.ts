@@ -1,8 +1,8 @@
-import { AxiosResponse } from 'axios';
-import { GithubCommitModel } from '../model/commit-model';
-import { GithubPullModel } from '../model/pull-model';
-import { GithubRepositoryModel } from '../model/repository-model';
-import { GithubSearchUserModel, GithubUserModel, UserModel } from '../model/user-model';
+import { AxiosResponse } from 'axios'
+import { GithubCommitModel } from '../model/commit-model'
+import { GithubPullModel } from '../model/pull-model'
+import { GithubRepositoryModel } from '../model/repository-model'
+import { GithubSearchUserModel } from '../model/user-model'
 
 export interface GitHubApi {
 	checkUserCredentials: (username: string, pat: string) => Promise<AxiosResponse<any, any>>
@@ -13,5 +13,5 @@ export interface GitHubApi {
 	getRepositoryPulls: (owner: string, repositoryName: string) => Promise<GithubPullModel[]>
 	getUsedLanguages: (owner: string, repositoryName: string) => Promise<AxiosResponse<any, any>>
 	getUser: (username: string) => Promise<AxiosResponse<any, any>>
-	searchUsers: (query: string) => Promise<GithubSearchUserModel[]>
+	searchUsers: (params: string) => Promise<GithubSearchUserModel[]>
 }
