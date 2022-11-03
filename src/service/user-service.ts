@@ -211,12 +211,12 @@ export class UserService {
 		return languagesPercentageUsage;
 	}
 
-	async searchUser(username: string) {
+	async getUser(username: string) {
 		if (!username) {
 			throw new Error('UserToSearch was not provided');
 		}
 
-		const result = await this.GitHubApi.searchUser(username);
+		const result = await this.GitHubApi.getUser(username);
 
 		if (result.status != 200) {
 			throw new Error(`Response status different from expected ${result.status}`);

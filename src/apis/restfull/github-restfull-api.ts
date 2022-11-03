@@ -4,6 +4,8 @@ import { GithubRepositoryModel } from "../../model/repository-model";
 import { GithubCommitModel } from "../../model/commit-model";
 import { GithubPullModel } from "../../model/pull-model";
 import { CURRENT_USER } from "../../middlewares/user-ensureAuthentication";
+import { AxiosResponse } from "axios";
+import { GithubSearchUserModel } from "../../model/user-model";
 
 export class GitHubRestfullApi implements GitHubApi {
 	GitHubBasicAuth: { auth: { username: string, password: string }, validateStatus: () => boolean };
@@ -102,7 +104,11 @@ export class GitHubRestfullApi implements GitHubApi {
 		return await githubApi.get(`/repos/${login}/${repositoryName}/languages`, this.GitHubBasicAuth);
 	}
 
-	async searchUser(username: string) {
+	async getUser(username: string) {
 		return await githubApi.get(`/users/${username}`, this.GitHubBasicAuth);
+	}
+
+	async searchUsers(query: string) {
+		return await (await githubApi.get(`/search/users?${query}`, this.GitHubBasicAuth)).data.items as GithubSearchUserModel[]
 	}
 }

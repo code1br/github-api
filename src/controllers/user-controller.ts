@@ -69,11 +69,11 @@ export class UserController extends BaseController{
 		})
 	}
 
-	static async searchUser(req: Request, res: Response) {
+	static async getUser(req: Request, res: Response) {
 		super.execute(req, res, async () => {
 			const userToSearch = req.params.userToSearch
 
-			res.status(200).send(await new UserController().getService().searchUser(userToSearch))
+			res.status(200).send(await new UserController().getService().getUser(userToSearch))
 		})
 	}
 }

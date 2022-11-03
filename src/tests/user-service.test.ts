@@ -10,7 +10,7 @@ const githubApiSpy = {
 	getRepositoryCommitsSpy: jest.fn(),
 	getRepositoryPullsSpy: jest.fn(),
 	getUsedLanguagesSpy: jest.fn(),
-	searchUserSpy: jest.fn()
+	getUserSpy: jest.fn()
 }
 const prismaClientSpy = {
 	findFirst: jest.fn(),
@@ -25,7 +25,7 @@ const api: GitHubApi = {
 	getRepositoryCommits: githubApiSpy.getRepositoryCommitsSpy,
 	getRepositoryPulls: githubApiSpy.getRepositoryPullsSpy,
 	getUsedLanguages: githubApiSpy.getUsedLanguagesSpy,
-	searchUser: githubApiSpy.searchUserSpy,
+	getUser: githubApiSpy.getUserSpy,
 	checkUserCredentials: githubApiSpy.checkUserCredentialsSpy
 }
 const service = new UserService(api)
@@ -723,19 +723,19 @@ describe('Get a user', () => {
 			'status': 200
 		};
 
-		githubApiSpy.searchUserSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.getUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.searchUser(usernameToGet)).resolves.not.toThrow();
+		expect(service.getUser(usernameToGet)).resolves.not.toThrow();
 
-		expect(githubApiSpy.searchUserSpy).toHaveBeenCalledWith(usernameToGet)
+		expect(githubApiSpy.getUserSpy).toHaveBeenCalledWith(usernameToGet)
 	})
 
 	it('should not be able to get a user with empty login to get', () => {
 		const usernameToGet = '';
 
-		expect(service.searchUser(usernameToGet)).rejects.toThrow();
+		expect(service.getUser(usernameToGet)).rejects.toThrow();
 
-		expect(githubApiSpy.searchUserSpy).not.toHaveBeenCalled()
+		expect(githubApiSpy.getUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should rejects when api reponse status code is not 200', () => {
@@ -745,11 +745,11 @@ describe('Get a user', () => {
 			'status': 400
 		};
 
-		githubApiSpy.searchUserSpy.mockResolvedValueOnce(apiResponse)
+		githubApiSpy.getUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.searchUser(usernameToGet)).rejects.toThrow();
+		expect(service.getUser(usernameToGet)).rejects.toThrow();
 
-		expect(githubApiSpy.searchUserSpy).toHaveBeenCalledWith(usernameToGet)
+		expect(githubApiSpy.getUserSpy).toHaveBeenCalledWith(usernameToGet)
 	})
 })
 
