@@ -226,14 +226,9 @@ export class UserService {
 
 	async searchAndSortUsers(queryObj: string) {
 		const users: UserSearchModel[] = await this.searchUsers(queryObj)
-		
-		console.log(users.length)
 
 		for (const user of users) {
 			user.commits = await this.getNumberOfCommits(user.login)
-		}
-
-		for (const user of users) {
 			user.email = (await this.getUser(user.login)).email
 		}
 
