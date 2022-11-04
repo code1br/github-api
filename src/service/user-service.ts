@@ -5,7 +5,7 @@ import { GithubRepositoryModel, RepositoryModel } from '../model/repository-mode
 import { client } from '../prisma/client'
 import { GenerateJwtTokenProvider } from '../provider/generate-jwt-token-provider'
 import Cryptr from 'cryptr'
-import { GithubSearchUserModel } from '../model/user-model'
+import { GithubSearchUserModel, UserSearchModel } from '../model/user-model'
 
 export class UserService {
 	constructor(private GitHubApi: GitHubApi) { }
@@ -225,7 +225,7 @@ export class UserService {
 	}
 
 	async searchAndSortUsers(queryObj: string) {
-		const users: GithubSearchUserModel[] = await this.searchUsers(queryObj)
+		const users: UserSearchModel[] = await this.searchUsers(queryObj)
 		
 		console.log(users.length)
 
@@ -233,7 +233,11 @@ export class UserService {
 			user.commits = await this.getNumberOfCommits(user.login)
 		}
 
-		users.sort((a: GithubSearchUserModel,b: GithubSearchUserModel) => {
+		for (const user of users) {
+			user.email = (await this.getUser(user.login)).email
+		}
+
+		users.sort((a: UserSearchModel,b: UserSearchModel) => {
 			if(a.commits && b.commits) {
 				if(a.commits?.commits_in_current_year > b.commits?.commits_in_current_year){
 					return -1
