@@ -5,7 +5,7 @@ import { GithubRepositoryModel, RepositoryModel } from '../model/repository-mode
 import { client } from '../prisma/client'
 import { GenerateJwtTokenProvider } from '../provider/generate-jwt-token-provider'
 import Cryptr from 'cryptr'
-import { GithubSearchUserModel, UserSearchModel } from '../model/user-model'
+import { UserSearchModel } from '../model/user-model'
 
 export class UserService {
 	constructor(private GitHubApi: GitHubApi) { }

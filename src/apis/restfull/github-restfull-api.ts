@@ -1,7 +1,7 @@
 import { githubApi } from '../../config/github-api-config'
 import { GitHubApi } from '../github-api'
 import { GithubRepositoryModel } from '../../model/repository-model'
-import { GithubCommitModel } from '../../model/commit-model'
+import { GithubCommitModel, GithubSearchCommitsModel } from '../../model/commit-model'
 import { GithubPullModel } from '../../model/pull-model'
 import { CURRENT_USER } from '../../middlewares/user-ensureAuthentication'
 import { GithubSearchUserModel, UserSearchModel } from '../../model/user-model'
@@ -43,7 +43,7 @@ export class GitHubRestfullApi implements GitHubApi {
 		let githubRepositories: GithubRepositoryModel[] = []
 		let page = 1
 
-		let result = await githubApi.get(`/user/repos?page=${page}&per_page=${per_page}`, this.GitHubBasicAuth)
+		let result: AxiosResponse<GithubRepositoryModel[], unknown> = await githubApi.get(`/user/repos?page=${page}&per_page=${per_page}`, this.GitHubBasicAuth)
 
 		while (result.data.length > 0) {
 			if (result.status == 200) {
@@ -141,7 +141,7 @@ export class GitHubRestfullApi implements GitHubApi {
 		return users
 	}
 
-	async getNumberOfCommitsSinceBegining(username: string): Promise<AxiosResponse<any, any>>{
+	async getNumberOfCommitsSinceBegining(username: string): Promise<AxiosResponse<GithubSearchCommitsModel, unknown>>{
 		const query = new URLSearchParams(`q=author:${username}`).toString()
 		const result = await githubApi.get(`/search/commits?${query}`, this.GitHubBasicAuth)
 		
@@ -156,7 +156,7 @@ export class GitHubRestfullApi implements GitHubApi {
 		}
 	}
 	
-	async getNumberOfCommitsSinceDate(username: string, startDate: string): Promise<AxiosResponse<any, any>>{
+	async getNumberOfCommitsSinceDate(username: string, startDate: string): Promise<AxiosResponse<GithubSearchCommitsModel, unknown>>{
 		const query = new URLSearchParams(`q=author:${username} committer-date:>${startDate}`).toString()
 		const result = await githubApi.get(`/search/commits?${query}`, this.GitHubBasicAuth)
 
