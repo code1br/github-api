@@ -1,47 +1,47 @@
 import { GitHubApi } from '../apis/github-api'
 import { CURRENT_USER } from '../middlewares/user-ensureAuthentication'
-import { GithubCommitModel } from '../model/commit-model'
 import { GithubPullModel } from '../model/pull-model'
 import { GithubRepositoryModel, RepositoryModel } from '../model/repository-model'
 import { client } from '../prisma/client'
 import { GenerateJwtTokenProvider } from '../provider/generate-jwt-token-provider'
 import Cryptr from 'cryptr'
+import { GithubSearchUserModel } from '../model/user-model'
 
 export class UserService {
 	constructor(private GitHubApi: GitHubApi) { }
 
 	async authenticateUser(username: string, pat: string) {
-		if(!username){
+		if (!username) {
 			throw new Error('Username was not provided')
 		}
-		if(!pat){
+		if (!pat) {
 			throw new Error('PAT was not provided')
 		}
-		if(!pat.startsWith('ghp_')){
+		if (!pat.startsWith('ghp_')) {
 			throw new Error('PAT is not valid')
 		}
-		
+
 		const apiResponse = await this.GitHubApi.checkUserCredentials(username, pat)
 
-		if(apiResponse.data.login != username){
+		if (apiResponse.data.login != username) {
 			throw new Error('Username does not match')
 		}
-		
+
 		const userOnDatabase = await client.user.findFirst({
 			where: { username }
 		})
-		
+
 		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || 'default')
-		
+
 		const encryptedPat = cryptr.encrypt(pat)
 
-		if(userOnDatabase && cryptr.decrypt(userOnDatabase.pat) != pat){
+		if (userOnDatabase && cryptr.decrypt(userOnDatabase.pat) != pat) {
 			await client.user.update({
 				where: { username },
 				data: { pat: encryptedPat }
 			})
 		}
-		
+
 		const token = new GenerateJwtTokenProvider().execute(username)
 
 		if (!userOnDatabase) {
@@ -52,7 +52,7 @@ export class UserService {
 					token
 				}
 			})
-		}else{
+		} else {
 			await client.user.update({
 				where: { username },
 				data: { token }
@@ -116,13 +116,22 @@ export class UserService {
 		return { stars: numberOfStars }
 	}
 
-	async getNumberOfCommitsForAuthUser() {
+	async getNumberOfCommits(username?: string) {
+
+		let login
+
+		if (username) {
+			login = username
+		} else {
+			login = CURRENT_USER.login
+		}
+
 		let totalCommits = 0
 		let totalCommitsInCurrentYear = 0
 		const sinceDate = `${new Date().getFullYear()}-01-01`
 
-		totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceBegining(CURRENT_USER.login)).data.total_count
-		totalCommitsInCurrentYear = (await this.GitHubApi.getNumberOfCommitsSinceDate(CURRENT_USER.login, sinceDate)).data.total_count
+		totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceBegining(login)).data.total_count
+		totalCommitsInCurrentYear = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate)).data.total_count
 
 		return {
 			commits_in_current_year: totalCommitsInCurrentYear,
@@ -184,7 +193,7 @@ export class UserService {
 			}
 		}
 
-		Object.entries(languagesBytesSize).forEach(([key, value]) => {
+		Object.entries(languagesBytesSize).forEach(([, value]) => {
 			totalBytes += value
 		})
 
@@ -213,5 +222,30 @@ export class UserService {
 		const params = new URLSearchParams(queryObj).toString()
 
 		return await this.GitHubApi.searchUsers(params)
+	}
+
+	async searchAndSortUsers(queryObj: string) {
+		const users: GithubSearchUserModel[] = await this.searchUsers(queryObj)
+		
+		console.log(users.length)
+
+		for (const user of users) {
+			user.commits = await this.getNumberOfCommits(user.login)
+		}
+
+		users.sort((a: GithubSearchUserModel,b: GithubSearchUserModel) => {
+			if(a.commits && b.commits) {
+				if(a.commits?.commits_in_current_year > b.commits?.commits_in_current_year){
+					return -1
+				}else{
+					return 1
+				}
+			}else{
+				return 0
+			}
+		})
+
+		return users
+
 	}
 }

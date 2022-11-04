@@ -57,5 +57,9 @@ export interface GithubSearchUserModel {
 	received_events_url: string,
 	type: string,
 	site_admin: boolean,
-	score: number
+	score: number,
+	commits?:{
+		commits_in_current_year: number,
+		total_commits: number
+	}
 }

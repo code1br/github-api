@@ -5,6 +5,8 @@ import { GithubCommitModel } from '../../model/commit-model'
 import { GithubPullModel } from '../../model/pull-model'
 import { CURRENT_USER } from '../../middlewares/user-ensureAuthentication'
 import { GithubSearchUserModel } from '../../model/user-model'
+import { sleepMs } from '../../utils/sleep'
+import { AxiosResponse } from 'axios'
 
 export class GitHubRestfullApi implements GitHubApi {
 	GitHubBasicAuth: { auth: { username: string, password: string }, validateStatus: () => boolean }
@@ -108,13 +110,14 @@ export class GitHubRestfullApi implements GitHubApi {
 	}
 
 	async searchUsers(params: string) {
-		const per_page = 100
+		const per_page = 10
 		let githubUsersResult: GithubSearchUserModel[] = []
 		let page = 1
 
 		let result = await githubApi.get(`/search/users?${params}&page=${page}&per_page=${per_page}`, this.GitHubBasicAuth)
 		
-		while (result.data.items?.length > 0) {
+		// while (result.data.items?.length > 0) {
+		while (page < 3) {
 			if (result.status == 200) {
 				for (const user of result.data.items) {
 					githubUsersResult = githubUsersResult.concat(user)
@@ -130,12 +133,31 @@ export class GitHubRestfullApi implements GitHubApi {
 		return githubUsersResult
 	}
 
-	async getNumberOfCommitsSinceBegining(username: string){
+	async getNumberOfCommitsSinceBegining(username: string): Promise<AxiosResponse<any, any>>{
 		const query = new URLSearchParams(`q=author:${username}`).toString()
-		return await githubApi.get(`/search/commits?${query}`, this.GitHubBasicAuth)
+		const result = await githubApi.get(`/search/commits?${query}`, this.GitHubBasicAuth)
+		
+		if(result.status == 200){
+			return result
+		}else{
+			const dateAllowed = new Date(parseInt(result.headers['x-ratelimit-reset']) * 1000)
+			const msToWait = dateAllowed.getTime() - new Date().getTime()
+			await sleepMs(msToWait + 1000)
+			return await this.getNumberOfCommitsSinceBegining(username)
+		}
 	}
-	async getNumberOfCommitsSinceDate(username: string, startDate: string){
+	async getNumberOfCommitsSinceDate(username: string, startDate: string): Promise<AxiosResponse<any, any>>{
 		const query = new URLSearchParams(`q=author:${username} committer-date:>${startDate}`).toString()
-		return await githubApi.get(`/search/commits?${query}`, this.GitHubBasicAuth)
+		const result = await githubApi.get(`/search/commits?${query}`, this.GitHubBasicAuth)
+
+		if(result.status == 200){
+			return result
+		}else{
+			const dateAllowed = new Date(parseInt(result.headers['x-ratelimit-reset']) * 1000)
+			const msToWait = dateAllowed.getTime() - new Date().getTime()
+			console.log(`ratelimit expired, waiting until ${dateAllowed}`)
+			await sleepMs(msToWait + 1000)
+			return await this.getNumberOfCommitsSinceDate(username, startDate)
+		}
 	}
 }
