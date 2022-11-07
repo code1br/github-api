@@ -68,7 +68,6 @@ export interface UserSearchModel {
 	login: string,
 	email?: string,
 	commits?:{
-		commits_in_current_year: number,
-		total_commits: number
+		total_commits_since_date: number
 	}
 }

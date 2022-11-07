@@ -165,6 +165,7 @@ export class GitHubRestfullApi implements GitHubApi {
 			const dateAllowed = new Date(parseInt(result.headers['x-ratelimit-reset']) * 1000)
 			const msToWait = dateAllowed.getTime() - new Date().getTime()
 			console.log(`ratelimit expired, waiting until ${dateAllowed}`)
+			console.log(`Error on status ${result.status}: ${result.statusText}`)
 			await sleepMs(msToWait + 1000)
 			return await this.getNumberOfCommitsSinceDate(username, startDate)
 		}

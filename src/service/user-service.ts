@@ -127,14 +127,12 @@ export class UserService {
 		}
 		const sinceDate = `${new Date().getFullYear()}-01-01`
 	
-		const totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceBegining(login))
-		const totalCommitsInCurrentYear = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate))
+		const totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate))
 
-		console.log(`Faltam: ${totalCommitsInCurrentYear.headers['x-ratelimit-remaining']} requests`)
+		console.log(`Remaining requests: ${totalCommits.headers['x-ratelimit-remaining']} requests`)
 
 		return {
-			commits_in_current_year: totalCommitsInCurrentYear.data.total_count,
-			total_commits: totalCommits.data.total_count
+			total_commits_since_date: totalCommits.data.total_count,
 		}
 
 	}
@@ -241,7 +239,7 @@ export class UserService {
 		console.time('Time taken by sort')
 		users.sort((a: UserSearchModel,b: UserSearchModel) => {
 			if(a.commits && b.commits) {
-				if(a.commits?.commits_in_current_year > b.commits?.commits_in_current_year){
+				if(a.commits?.total_commits_since_date > b.commits?.total_commits_since_date){
 					return -1
 				}else{
 					return 1
