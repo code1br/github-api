@@ -125,17 +125,16 @@ export class UserService {
 		} else {
 			login = CURRENT_USER.login
 		}
-
-		let totalCommits = 0
-		let totalCommitsInCurrentYear = 0
 		const sinceDate = `${new Date().getFullYear()}-01-01`
+	
+		const totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceBegining(login))
+		const totalCommitsInCurrentYear = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate))
 
-		totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceBegining(login)).data.total_count
-		totalCommitsInCurrentYear = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate)).data.total_count
+		console.log(`Faltam: ${totalCommitsInCurrentYear.headers['x-ratelimit-remaining']} requests`)
 
 		return {
-			commits_in_current_year: totalCommitsInCurrentYear,
-			total_commits: totalCommits
+			commits_in_current_year: totalCommitsInCurrentYear.data.total_count,
+			total_commits: totalCommits.data.total_count
 		}
 
 	}
@@ -225,13 +224,21 @@ export class UserService {
 	}
 
 	async searchAndSortUsers(queryObj: string) {
+		console.time('Time taken by search all')
 		const users: UserSearchModel[] = await this.searchUsers(queryObj)
+		console.timeEnd('Time taken by search all')
+
+		let i = 1
 
 		for (const user of users) {
+			console.time('Time taken by commit requests')
+			console.log(i++)
 			user.commits = await this.getNumberOfCommits(user.login)
 			user.email = (await this.getUser(user.login)).email
+			console.timeEnd('Time taken by commit requests')
 		}
 
+		console.time('Time taken by sort')
 		users.sort((a: UserSearchModel,b: UserSearchModel) => {
 			if(a.commits && b.commits) {
 				if(a.commits?.commits_in_current_year > b.commits?.commits_in_current_year){
@@ -243,6 +250,7 @@ export class UserService {
 				return 0
 			}
 		})
+		console.timeEnd('Time taken by sort')
 
 		return users
 

@@ -110,14 +110,13 @@ export class GitHubRestfullApi implements GitHubApi {
 	}
 
 	async searchUsers(params: string) {
-		const per_page = 10
+		const per_page = 100
 		let githubUsersResult: GithubSearchUserModel[] = []
 		let page = 1
 
 		let result = await githubApi.get(`/search/users?${params}&page=${page}&per_page=${per_page}`, this.GitHubBasicAuth)
 		
-		// while (result.data.items?.length > 0) {
-		while (page < 3) {
+		while (result.data.items?.length > 0) {
 			if (result.status == 200) {
 				for (const user of result.data.items) {
 					githubUsersResult = githubUsersResult.concat(user)
