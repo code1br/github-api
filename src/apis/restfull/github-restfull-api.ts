@@ -109,14 +109,15 @@ export class GitHubRestfullApi implements GitHubApi {
 		return await githubApi.get(`/users/${username}`, this.GitHubBasicAuth)
 	}
 
-	async searchUsers(params: string) {
+	async searchUsers(params: string, pages: number) {
 		const per_page = 100
 		let githubUsersResult: GithubSearchUserModel[] = []
 		let page = 1
 
-		let result = await githubApi.get(`/search/users?${params}&page=${page}&per_page=${per_page}`, this.GitHubBasicAuth)
 		
-		while (result.data.items?.length > 0) {
+		while (page <= pages) {
+			const result = await githubApi.get(`/search/users?${params}&page=${page++}&per_page=${per_page}`, this.GitHubBasicAuth)
+
 			if (result.status == 200) {
 				for (const user of result.data.items) {
 					githubUsersResult = githubUsersResult.concat(user)
@@ -125,8 +126,6 @@ export class GitHubRestfullApi implements GitHubApi {
 				console.error(`Axios Response Error: ${result.status} --> ${result.statusText}`)
 				break
 			}
-
-			result = await githubApi.get(`/search/users?${params}&page=${++page}&per_page=${per_page}`, this.GitHubBasicAuth)
 		}
 
 		const users: UserSearchModel[] = []
@@ -136,6 +135,8 @@ export class GitHubRestfullApi implements GitHubApi {
 				login: user.login
 			})
 		}
+
+		console.log(users.length)
 
 		return users
 	}

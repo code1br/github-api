@@ -116,7 +116,7 @@ export class UserService {
 		return { stars: numberOfStars }
 	}
 
-	async getNumberOfCommits(username?: string) {
+	async getNumberOfCommits(username?: string, sinceDate = `${new Date().getFullYear()}-01-01`) {
 
 		let login
 
@@ -125,7 +125,6 @@ export class UserService {
 		} else {
 			login = CURRENT_USER.login
 		}
-		const sinceDate = `${new Date().getFullYear()}-01-01`
 	
 		const totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate))
 
@@ -215,15 +214,38 @@ export class UserService {
 		}
 	}
 
-	async searchUsers(queryObj: string) {
+	async searchUsers(queryObj: {q: string, sort: string}, pages: number) {
 		const params = new URLSearchParams(queryObj).toString()
 
-		return await this.GitHubApi.searchUsers(params)
+		return await this.GitHubApi.searchUsers(params, pages)
 	}
 
-	async searchAndSortUsers(queryObj: string) {
+	async searchAndSortUsers(language: string, type: string, location: string, sort: string, sinceDate: string, pages: number) {
+		if(!language){
+			throw new Error('Language not specified')
+		}
+		if(!type){
+			throw new Error('Type not specified')
+		}
+
+		// eslint-disable-next-line prefer-const
+		let queryObj= {
+			q: `language:${language} type:${type}`,
+			sort: ''
+		}
+
+		if(location){
+			queryObj.q += ` location:${location}`
+		}
+
+		if(sort){
+			queryObj.sort = sort
+		}
+
+		console.log(queryObj)
+
 		console.time('Time taken by search all')
-		const users: UserSearchModel[] = await this.searchUsers(queryObj)
+		const users: UserSearchModel[] = await this.searchUsers(queryObj, pages)
 		console.timeEnd('Time taken by search all')
 
 		let i = 1
@@ -231,7 +253,7 @@ export class UserService {
 		for (const user of users) {
 			console.time('Time taken by commit requests')
 			console.log(i++)
-			user.commits = await this.getNumberOfCommits(user.login)
+			user.commits = await this.getNumberOfCommits(user.login, sinceDate)
 			user.email = (await this.getUser(user.login)).email
 			console.timeEnd('Time taken by commit requests')
 		}

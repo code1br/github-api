@@ -13,7 +13,7 @@ export interface GitHubApi {
 	getRepositoryPulls: (owner: string, repositoryName: string) => Promise<GithubPullModel[]>
 	getUsedLanguages: (owner: string, repositoryName: string) => Promise<AxiosResponse<unknown, unknown>>
 	getUser: (username: string) => Promise<AxiosResponse<GithubUserModel, unknown>>
-	searchUsers: (params: string) => Promise<UserSearchModel[]>
+	searchUsers: (params: string, pages: number) => Promise<UserSearchModel[]>
 	getNumberOfCommitsSinceBegining: (username: string) => Promise<AxiosResponse<GithubSearchCommitsModel, unknown>>
 	getNumberOfCommitsSinceDate: (username: string, startDate: string) => Promise<AxiosResponse<GithubSearchCommitsModel, unknown>>
 }
