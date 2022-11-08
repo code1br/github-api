@@ -1,6 +1,7 @@
-import Cryptr from 'cryptr';
-import { GitHubApi } from '../apis/github-api';
-import { UserService } from '../service/user-service';
+import Cryptr from 'cryptr'
+import { GitHubApi } from '../apis/github-api'
+import { CURRENT_USER } from '../middlewares/user-ensureAuthentication'
+import { UserService } from '../service/user-service'
 
 const githubApiSpy = {
 	checkUserCredentialsSpy: jest.fn(),
@@ -10,7 +11,10 @@ const githubApiSpy = {
 	getRepositoryCommitsSpy: jest.fn(),
 	getRepositoryPullsSpy: jest.fn(),
 	getUsedLanguagesSpy: jest.fn(),
-	getUserSpy: jest.fn()
+	getUserSpy: jest.fn(),
+	searchUsersSpy: jest.fn(),
+	getNumberOfCommitsSinceBeginingSpy: jest.fn(),
+	getNumberOfCommitsSinceDateSpy: jest.fn()
 }
 const prismaClientSpy = {
 	findFirst: jest.fn(),
@@ -26,7 +30,10 @@ const api: GitHubApi = {
 	getRepositoryPulls: githubApiSpy.getRepositoryPullsSpy,
 	getUsedLanguages: githubApiSpy.getUsedLanguagesSpy,
 	getUser: githubApiSpy.getUserSpy,
-	checkUserCredentials: githubApiSpy.checkUserCredentialsSpy
+	checkUserCredentials: githubApiSpy.checkUserCredentialsSpy,
+	searchUsers: githubApiSpy.searchUsersSpy,
+	getNumberOfCommitsSinceBegining: githubApiSpy.getNumberOfCommitsSinceBeginingSpy,
+	getNumberOfCommitsSinceDate: githubApiSpy.getNumberOfCommitsSinceDateSpy
 }
 const service = new UserService(api)
 
@@ -38,7 +45,7 @@ jest.mock('../middlewares/user-ensureAuthentication', () => ({
 		}
 	}
 }))
-jest.mock("../prisma/client", () => {
+jest.mock('../prisma/client', () => {
 	return {
 		_esModule: true,
 		client: {
@@ -53,44 +60,44 @@ jest.mock("../prisma/client", () => {
 jest.mock('../provider/generate-jwt-token-provider', () => {
 	return {
 		GenerateJwtTokenProvider: jest.fn().mockImplementation(() => {
-			return { execute: generateJwtTokenProviderSpy };
+			return { execute: generateJwtTokenProviderSpy }
 		}),
-	};
-});
+	}
+})
 
 describe('Follow a user', () => {
 	it('should be able to follow a user', () => {
-		const loginToFollow = 'BBBBBBB';
+		const loginToFollow = 'BBBBBBB'
 
 		const apiResponse = {
 			'status': 204
-		};
+		}
 
 		githubApiSpy.followUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.followUser(loginToFollow)).resolves.not.toThrow();
+		expect(service.followUser(loginToFollow)).resolves.not.toThrow()
 
 		expect(githubApiSpy.followUserSpy).toHaveBeenCalledWith(loginToFollow)
 	})
 
 	it('should not be able to follow a user with empty login to follow', () => {
-		const loginToFollow = '';
+		const loginToFollow = ''
 
-		expect(service.followUser(loginToFollow)).rejects.toThrow();
+		expect(service.followUser(loginToFollow)).rejects.toThrow()
 
 		expect(githubApiSpy.followUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should rejects when api reponse status code is not 204', () => {
-		const loginToFollow = 'BBBBBBB';
+		const loginToFollow = 'BBBBBBB'
 
 		const apiResponse = {
 			'status': 400
-		};
+		}
 
 		githubApiSpy.followUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.followUser(loginToFollow)).rejects.toThrow();
+		expect(service.followUser(loginToFollow)).rejects.toThrow()
 
 		expect(githubApiSpy.followUserSpy).toHaveBeenCalledWith(loginToFollow)
 	})
@@ -98,37 +105,37 @@ describe('Follow a user', () => {
 
 describe('Unfollow a user', () => {
 	it('should be able to unfollow a user', () => {
-		const loginToUnfollow = 'BBBBBBB';
+		const loginToUnfollow = 'BBBBBBB'
 
 		const apiResponse = {
 			'status': 204
-		};
+		}
 
 		githubApiSpy.unfollowUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.unfollowUser(loginToUnfollow)).resolves.not.toThrow();
+		expect(service.unfollowUser(loginToUnfollow)).resolves.not.toThrow()
 
 		expect(githubApiSpy.unfollowUserSpy).toHaveBeenCalledWith(loginToUnfollow)
 	})
 
 	it('should not be able to unfollow a user with empty login to follow', () => {
-		const loginToUnfollow = '';
+		const loginToUnfollow = ''
 
-		expect(service.unfollowUser(loginToUnfollow)).rejects.toThrow();
+		expect(service.unfollowUser(loginToUnfollow)).rejects.toThrow()
 
 		expect(githubApiSpy.followUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should rejects when api reponse status code is not 204', () => {
-		const loginToFollow = 'BBBBBBB';
+		const loginToFollow = 'BBBBBBB'
 
 		const apiResponse = {
 			'status': 400
-		};
+		}
 
 		githubApiSpy.unfollowUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.unfollowUser(loginToFollow)).rejects.toThrow();
+		expect(service.unfollowUser(loginToFollow)).rejects.toThrow()
 
 		expect(githubApiSpy.unfollowUserSpy).toHaveBeenCalledWith(loginToFollow)
 	})
@@ -150,7 +157,7 @@ describe('List repositories', () => {
 				owner: 'BBBBBBB',
 				private: true
 			}
-		];
+		]
 
 
 		const apiResponse = [
@@ -167,11 +174,11 @@ describe('List repositories', () => {
 				owner: { login: 'BBBBBBB' },
 				private: true
 			}
-		];
+		]
 
 		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
 
-		const result = await service.listRepositories();
+		const result = await service.listRepositories()
 
 		expect(result).toEqual(expectedResult)
 		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
@@ -198,261 +205,56 @@ describe('Get Stars', () => {
 				private: true,
 				stargazers_count: 4
 			}
-		];
+		]
 
-		const expectedResult = { stars: 9 };
+		const expectedResult = { stars: 9 }
 
 		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(apiResponse)
 
-		const result = await service.getNumberOfStars();
+		const result = await service.getNumberOfStars()
 
 		expect(result).toEqual(expectedResult)
 		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
 		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalledTimes(1)
 
-	});
-});
+	})
+})
 
 describe('Get Commits', () => {
 	it('should be able to get the user number of commits in all repositories', async () => {
-		const listRepositoriesApiResponse = [
-			{
-				name: 'repo1',
-				owner: { login: 'AAAAAAAA' },
-				private: false
-			}, {
-				name: 'repo2',
-				owner: { login: 'AAAAAAAA' },
-				private: false
-			}, {
-				name: 'repo3',
-				owner: { login: 'BBBBBBB' },
-				private: true
+		const commitsSinceBeginingApiResponse = {
+			data: {
+				total_count: 708,
+				incomplete_results: false,
+				items: []
 			}
-		];
-
-		const getRepositoryCommitsApiResponse1 = [
-			{
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'BBB'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'BB'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'BB'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'BB'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'BB'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'BB'
-				}
+		}
+		const commitsSinceDateApiResponse = {
+			data: {
+				total_count: 300,
+				incomplete_results: false,
+				items: []
 			}
-		];
-		const getRepositoryCommitsApiResponse2 = [
-			{
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'BBB'
-				}
-			}
-		];
-		const getRepositoryCommitsApiResponse3 = [
-			{
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2021-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'AAAAAAAA'
-				}
-			}, {
-				commit: {
-					committer: {
-						date: '2022-05-22T18:45:42Z'
-					}
-				},
-				author: {
-					login: 'BBB'
-				}
-			}
-		];
+		}
 
 		const expectedResult = {
-			commits_in_current_year: 5,
-			total_commits: 13
-		};
+			commits_in_current_year: 300,
+			total_commits: 708
+		}
 
-		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
+		githubApiSpy.getNumberOfCommitsSinceBeginingSpy.mockResolvedValueOnce(commitsSinceBeginingApiResponse)
+		githubApiSpy.getNumberOfCommitsSinceDateSpy.mockResolvedValueOnce(commitsSinceDateApiResponse)
 
-		githubApiSpy.getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse1)
-		githubApiSpy.getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse2)
-		githubApiSpy.getRepositoryCommitsSpy.mockResolvedValueOnce(getRepositoryCommitsApiResponse3)
-
-		const result = await service.getNumberOfCommits();
+		const result = await service.getNumberOfCommitsForAuthUser()
 
 		expect(result).toEqual(expectedResult)
-		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
-		expect(githubApiSpy.getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[0].owner.login, listRepositoriesApiResponse[0].name)
-		expect(githubApiSpy.getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[1].owner.login, listRepositoriesApiResponse[1].name)
-		expect(githubApiSpy.getRepositoryCommitsSpy).toHaveBeenCalledWith(listRepositoriesApiResponse[2].owner.login, listRepositoriesApiResponse[2].name)
-		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalledTimes(1)
-		expect(githubApiSpy.getRepositoryCommitsSpy).toHaveBeenCalledTimes(3)
+		expect(githubApiSpy.getNumberOfCommitsSinceBeginingSpy).toHaveBeenCalledWith(CURRENT_USER.login)
+		expect(githubApiSpy.getNumberOfCommitsSinceDateSpy).toHaveBeenCalledWith(CURRENT_USER.login, `${new Date().getFullYear()}-01-01`)
+		expect(githubApiSpy.getNumberOfCommitsSinceBeginingSpy).toHaveBeenCalledTimes(1)
+		expect(githubApiSpy.getNumberOfCommitsSinceDateSpy).toHaveBeenCalledTimes(1)
 
-	});
-});
+	})
+})
 
 describe('Get Pulls', () => {
 	it('should be able to get the user number of pulls in all repositories', async () => {
@@ -470,7 +272,7 @@ describe('Get Pulls', () => {
 				owner: { login: 'BBBBBBB' },
 				private: true
 			}
-		];
+		]
 
 		const getRepositoryPullsApiResponse1 = [
 			{
@@ -539,7 +341,7 @@ describe('Get Pulls', () => {
 				},
 				created_at: '2021-05-22T18:45:42Z',
 			}
-		];
+		]
 		const getRepositoryPullsApiResponse2 = [
 			{
 				user: {
@@ -587,7 +389,7 @@ describe('Get Pulls', () => {
 				},
 				created_at: '2021-05-22T18:45:42Z',
 			}
-		];
+		]
 		const getRepositoryPullsApiResponse3 = [
 			{
 				user: {
@@ -620,12 +422,12 @@ describe('Get Pulls', () => {
 				},
 				created_at: '2021-05-22T18:45:42Z',
 			}
-		];
+		]
 
 		const expectedResult = {
 			pulls_in_current_year: 6,
 			total_pulls: 10
-		};
+		}
 
 		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
 
@@ -633,7 +435,7 @@ describe('Get Pulls', () => {
 		githubApiSpy.getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse2)
 		githubApiSpy.getRepositoryPullsSpy.mockResolvedValueOnce(getRepositoryPullsApiResponse3)
 
-		const result = await service.getNumberOfPulls();
+		const result = await service.getNumberOfPulls()
 
 		expect(result).toEqual(expectedResult)
 		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
@@ -643,8 +445,8 @@ describe('Get Pulls', () => {
 		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalledTimes(1)
 		expect(githubApiSpy.getRepositoryPullsSpy).toHaveBeenCalledTimes(3)
 
-	});
-});
+	})
+})
 
 describe('Get Used Languages', () => {
 	it('should be able to get used languages', async () => {
@@ -662,7 +464,7 @@ describe('Get Used Languages', () => {
 				owner: { login: 'BBBBBBB' },
 				private: true
 			}
-		];
+		]
 
 		const UsedLanguagesApiResponse1 = {
 			data: {
@@ -670,7 +472,7 @@ describe('Get Used Languages', () => {
 				'Python': 22326
 			},
 			status: 200
-		};
+		}
 
 		const UsedLanguagesApiResponse2 = {
 			data: {
@@ -678,7 +480,7 @@ describe('Get Used Languages', () => {
 				'Typescript': 5641654
 			},
 			status: 200
-		};
+		}
 
 		const UsedLanguagesApiResponse3 = {
 			data: {
@@ -687,14 +489,14 @@ describe('Get Used Languages', () => {
 				'Typescript': 8896544
 			},
 			status: 200
-		};
+		}
 
 		const expectedResult = {
 			'Java': 32.93,
 			'Python': 20.96,
 			'Typescript': 46.11,
 			'Ruby': 0.0
-		};
+		}
 
 		githubApiSpy.listRepositoriesSpy.mockResolvedValueOnce(listRepositoriesApiResponse)
 
@@ -702,7 +504,7 @@ describe('Get Used Languages', () => {
 		githubApiSpy.getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse2)
 		githubApiSpy.getUsedLanguagesSpy.mockResolvedValueOnce(UsedLanguagesApiResponse3)
 
-		const result = await service.getUsedLanguages();
+		const result = await service.getUsedLanguages()
 
 		expect(result).toEqual(expectedResult)
 		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalled()
@@ -712,42 +514,42 @@ describe('Get Used Languages', () => {
 		expect(githubApiSpy.listRepositoriesSpy).toHaveBeenCalledTimes(1)
 		expect(githubApiSpy.getUsedLanguagesSpy).toHaveBeenCalledTimes(3)
 
-	});
-});
+	})
+})
 
 describe('Get a user', () => {
 	it('should be able to get a user', () => {
-		const usernameToGet = 'BBBBBBB';
+		const usernameToGet = 'BBBBBBB'
 
 		const apiResponse = {
 			'status': 200
-		};
+		}
 
 		githubApiSpy.getUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.getUser(usernameToGet)).resolves.not.toThrow();
+		expect(service.getUser(usernameToGet)).resolves.not.toThrow()
 
 		expect(githubApiSpy.getUserSpy).toHaveBeenCalledWith(usernameToGet)
 	})
 
 	it('should not be able to get a user with empty login to get', () => {
-		const usernameToGet = '';
+		const usernameToGet = ''
 
-		expect(service.getUser(usernameToGet)).rejects.toThrow();
+		expect(service.getUser(usernameToGet)).rejects.toThrow()
 
 		expect(githubApiSpy.getUserSpy).not.toHaveBeenCalled()
 	})
 
 	it('should rejects when api reponse status code is not 200', () => {
-		const usernameToGet = 'BBBBBBB';
+		const usernameToGet = 'BBBBBBB'
 
 		const apiResponse = {
 			'status': 400
-		};
+		}
 
 		githubApiSpy.getUserSpy.mockResolvedValueOnce(apiResponse)
 
-		expect(service.getUser(usernameToGet)).rejects.toThrow();
+		expect(service.getUser(usernameToGet)).rejects.toThrow()
 
 		expect(githubApiSpy.getUserSpy).toHaveBeenCalledWith(usernameToGet)
 	})

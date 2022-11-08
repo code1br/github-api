@@ -116,6 +116,19 @@ export class UserService {
 		return { stars: numberOfStars }
 	}
 
+	async getNumberOfCommitsForAuthUser(username?: string, sinceDate = `${new Date().getFullYear()}-01-01`) {
+
+		const login = CURRENT_USER.login
+	
+		const totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceBegining(login))
+		const totalCommitsInCurrentYear = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate))
+
+		return {
+			commits_in_current_year: totalCommitsInCurrentYear.data.total_count,
+			total_commits: totalCommits.data.total_count
+		}
+	}
+
 	async getNumberOfCommits(username?: string, sinceDate = `${new Date().getFullYear()}-01-01`) {
 
 		let login

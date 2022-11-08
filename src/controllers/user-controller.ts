@@ -52,7 +52,7 @@ export class UserController extends BaseController{
 
 	static async getNumberOfCommitsForAuthUser(req: Request, res: Response) {
 		super.execute(req, res, async () => {
-			res.status(200).json(await new UserController().getService().getNumberOfCommits())
+			res.status(200).json(await new UserController().getService().getNumberOfCommitsForAuthUser())
 		})
 	}
 
