@@ -2,8 +2,6 @@ import { GitHubRestfullApi } from '../apis/restfull/github-restfull-api'
 import { UserService } from '../service/user-service'
 import { Request, Response } from 'express'
 import { BaseController } from './base-controller'
-import { URLSearchParams } from 'url'
-
 
 export class UserController extends BaseController{
 	private getService() {
@@ -52,7 +50,7 @@ export class UserController extends BaseController{
 		})
 	}
 
-	static async getNumberOfCommits(req: Request, res: Response) {
+	static async getNumberOfCommitsForAuthUser(req: Request, res: Response) {
 		super.execute(req, res, async () => {
 			res.status(200).json(await new UserController().getService().getNumberOfCommits())
 		})
@@ -80,9 +78,14 @@ export class UserController extends BaseController{
 
 	static async searchUsers(req: Request, res: Response) {
 		super.execute(req, res, async () => {
-			const queryObj = req.query as unknown as string
+			const location= req.query.location as unknown as string
+			const language= req.query.language as unknown as string
+			const type= req.query.type as unknown as string
+			const sinceDate= req.query.sinceDate as unknown as string
+			const sort= req.query.sort as unknown as string
+			const pages= req.query.pages as unknown as number
 
-			res.status(200).send(await new UserController().getService().searchUsers(queryObj))
+			res.status(200).send(await new UserController().getService().searchAndSortUsers(language, type, location, sort, sinceDate, pages))
 		})
 	}
 }
