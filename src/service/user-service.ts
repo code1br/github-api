@@ -116,7 +116,7 @@ export class UserService {
 		return { stars: numberOfStars }
 	}
 
-	async getNumberOfCommitsForAuthUser(username?: string, sinceDate = `${new Date().getFullYear()}-01-01`) {
+	async getNumberOfCommitsForAuthUser(sinceDate = `${new Date().getFullYear()}-01-01`) {
 
 		const login = CURRENT_USER.login
 	
@@ -129,16 +129,25 @@ export class UserService {
 		}
 	}
 
-	async getNumberOfCommits(username?: string, sinceDate = `${new Date().getFullYear()}-01-01`) {
+	async getNumberOfCommits(username: string, sinceDate = `${new Date().getFullYear()}-01-01`) {
 
-		let login
-
-		if (username) {
-			login = username
-		} else {
-			login = CURRENT_USER.login
+		if(!username){
+			throw new Error('Invalid username')
 		}
-	
+
+		if(isNaN(Date.parse(sinceDate))){
+			throw new Error('Invalid date')
+		}
+
+		const day = parseInt(sinceDate.split('-')[2])
+		const date = new Date(sinceDate)
+
+		if(day != date.getUTCDate()){
+			throw new Error('Invalid date')
+		}
+
+		const login = username
+
 		const totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate))
 
 		console.log(`Remaining requests: ${totalCommits.headers['x-ratelimit-remaining']} requests`)

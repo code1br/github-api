@@ -221,7 +221,7 @@ describe('Get Stars', () => {
 })
 
 describe('Get Commits', () => {
-	it('should be able to get the user number of commits in all repositories', async () => {
+	it('should be able to get the authenticated user number of commits', async () => {
 		const commitsSinceBeginingApiResponse = {
 			data: {
 				total_count: 708,
@@ -253,6 +253,61 @@ describe('Get Commits', () => {
 		expect(githubApiSpy.getNumberOfCommitsSinceBeginingSpy).toHaveBeenCalledTimes(1)
 		expect(githubApiSpy.getNumberOfCommitsSinceDateSpy).toHaveBeenCalledTimes(1)
 
+	})
+
+	it('should be able to get number of commits of a username', async () => {
+		const commitsSinceDateApiResponse = {
+			headers: {
+				'x-ratelimit-remaining': 5
+			},
+			data: {
+				total_count: 252,
+				incomplete_results: false,
+				items: []
+			}
+		}
+
+		const username = 'bro'
+		const sinceDate = '2022-04-30'
+
+		const expectedResult = {
+			total_commits_since_date: 252
+		}
+
+		githubApiSpy.getNumberOfCommitsSinceDateSpy.mockResolvedValueOnce(commitsSinceDateApiResponse)
+
+		const result = await service.getNumberOfCommits(username, sinceDate)
+
+		expect(result).toEqual(expectedResult)
+		expect(githubApiSpy.getNumberOfCommitsSinceDateSpy).toHaveBeenCalledWith(username, sinceDate)
+		expect(githubApiSpy.getNumberOfCommitsSinceDateSpy).toHaveBeenCalledTimes(1)
+	})
+
+	it('should not be able to get number of commits with empty username', async () => {
+		const username = ''
+		const sinceDate = '2022-04-30'
+
+		expect(service.getNumberOfCommits(username, sinceDate)).rejects.toThrow()
+
+		expect(githubApiSpy.getNumberOfCommitsSinceDateSpy).not.toHaveBeenCalled()
+	})
+
+	it('should not be able to get number of commits with invalid sinceDate', async () => {
+		const username = 'bro'
+		const sinceDate = '2022-04-31'
+
+		expect(service.getNumberOfCommits(username, sinceDate)).rejects.toThrow()
+
+		expect(githubApiSpy.getNumberOfCommitsSinceDateSpy).not.toHaveBeenCalled()
+	})
+	
+	it('should not be able to get number of commits with invalid sinceDate format', async () => {
+		const username = 'bro'
+		const sinceDate = 'ewqrewrweqew'
+
+		expect(service.getNumberOfCommits(username, sinceDate)).rejects.toThrow()
+
+		expect(githubApiSpy.getNumberOfCommitsSinceDateSpy).not.toHaveBeenCalled()
 	})
 })
 
