@@ -3,13 +3,13 @@ import 'dotenv/config';
 const server_host = process.env.SERVER_HOST || 'localhost';
 
 export default {
-	"openapi": "3.0.0",
-	"info": {
-		"title": "Github data manipulation API",
-		"description": "This API manipulates the some endpoints of Github restfull API, remember to authenticate yourself with your username and PAT from Github.com",
-		"contact": {
-			"name": "Eliezer Marques Mafra",
-			"email": "eliezermmafra@live.com"
+	'openapi': '3.0.0',
+	'info': {
+		'title': 'Github data manipulation API',
+		'description': 'This API manipulates the some endpoints of Github restfull API, remember to authenticate yourself with your username and PAT from Github.com',
+		'contact': {
+			'name': 'Eliezer Marques Mafra',
+			'email': 'eliezermmafra@live.com'
 		},
 		'version': '1.0.0'
 	},
@@ -19,57 +19,57 @@ export default {
 			'description': 'Test API'
 		}
 	],
-	"paths": {
-		"/user/login": {
-			"post": {
-				"summary": "Authenticate and get JWT token",
-				"description": "This route/method authenticates and gets the JWT token",
-				"tags": ["Login"],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/Login"
+	'paths': {
+		'/user/login': {
+			'post': {
+				'summary': 'Authenticate and get JWT token',
+				'description': 'This route/method authenticates and gets the JWT token',
+				'tags': ['Login'],
+				'requestBody': {
+					'content': {
+						'application/json': {
+							'schema': {
+								'$ref': '#/components/schemas/Login'
 							},
-							"examples": {
-								"Model": {
-									"value": {
-										"username": "<USERNAME HERE>",
-										"pat": "<PAT HERE>"
+							'examples': {
+								'Model': {
+									'value': {
+										'username': '<USERNAME HERE>',
+										'pat': '<PAT HERE>'
 									}
 								}
 							}
 						}
 					}
 				},
-				"responses": {
-					"200": {
-						"description": "OK: Repositories returned successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"$ref": "#/components/schemas/Login"
+				'responses': {
+					'200': {
+						'description': 'OK: Repositories returned successfully',
+						'content': {
+							'application/json': {
+								'schema': {
+									'type': 'object',
+									'$ref': '#/components/schemas/Login'
 								}
 							}
 						}
 					},
-					"400": {
-						"description": "Bad Request: It was not possible to follow the given user"
+					'400': {
+						'description': 'Bad Request: It was not possible to follow the given user'
 					},
-					"401": {
-						"description": "Unauthorized: Error on authentication"
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
 					}
 				}
 			}
 		},
-		"/users/following/{username}": {
-			"put": {
-				"summary": "Follow the username given in the param",
-				"description": "This route/method follow the username given in the param",
-				"security": [{ "bearerAuth": [] }],
-				"tags": ["Following"],
-				"parameters": [
+		'/users/following/{username}': {
+			'put': {
+				'summary': 'Follow the username given in the param',
+				'description': 'This route/method follow the username given in the param',
+				'security': [{ 'bearerAuth': [] }],
+				'tags': ['Following'],
+				'parameters': [
 					{
 						'in': 'path',
 						'name': 'username',
@@ -89,12 +89,12 @@ export default {
 					}
 				}
 			},
-			"delete": {
-				"summary": "Unfollow the username given in the param",
-				"description": "This route/method unfollow the username given in the param",
-				"security": [{ "bearerAuth": [] }],
-				"tags": ["Following"],
-				"parameters": [
+			'delete': {
+				'summary': 'Unfollow the username given in the param',
+				'description': 'This route/method unfollow the username given in the param',
+				'security': [{ 'bearerAuth': [] }],
+				'tags': ['Following'],
+				'parameters': [
 					{
 						'in': 'path',
 						'name': 'username',
@@ -114,12 +114,12 @@ export default {
 					}
 				}
 			},
-			"get": {
-				"summary": "Get the username given in the param",
-				"description": "This route/method get the username given in the param",
-				"security": [{ "bearerAuth": [] }],
-				"tags": ["Following"],
-				"parameters": [
+			'get': {
+				'summary': 'Get the username given in the param',
+				'description': 'This route/method get the username given in the param',
+				'security': [{ 'bearerAuth': [] }],
+				'tags': ['Following'],
+				'parameters': [
 					{
 						'in': 'path',
 						'name': 'username',
@@ -148,20 +148,20 @@ export default {
 				}
 			}
 		},
-		"/user/repositories": {
-			"get": {
-				"summary": "Get the authenticated user's repositories",
-				"description": "This route/method gets the authenticated user's private and public repositories",
-				"security": [{ "bearerAuth": [] }],
-				"tags": ["Stats"],
-				"responses": {
-					"200": {
-						"description": "OK: Repositories returned successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"$ref": "#/components/schemas/Repository"
+		'/user/repositories': {
+			'get': {
+				'summary': 'Get the authenticated user\'s repositories',
+				'description': 'This route/method gets the authenticated user\'s private and public repositories',
+				'security': [{ 'bearerAuth': [] }],
+				'tags': ['Stats'],
+				'responses': {
+					'200': {
+						'description': 'OK: Repositories returned successfully',
+						'content': {
+							'application/json': {
+								'schema': {
+									'type': 'object',
+									'$ref': '#/components/schemas/Repository'
 								}
 							}
 						}
@@ -175,20 +175,20 @@ export default {
 				}
 			}
 		},
-		"/user/stars": {
-			"get": {
-				"summary": "Get the authenticated user's repositories stars",
-				"description": "This route/method gets the authenticated user's repositories stars",
-				"security": [{ "bearerAuth": [] }],
-				"tags": ["Stats"],
-				"responses": {
-					"200": {
-						"description": "OK: Stars sum returned successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"$ref": "#/components/schemas/Stars"
+		'/user/stars': {
+			'get': {
+				'summary': 'Get the authenticated user\'s repositories stars',
+				'description': 'This route/method gets the authenticated user\'s repositories stars',
+				'security': [{ 'bearerAuth': [] }],
+				'tags': ['Stats'],
+				'responses': {
+					'200': {
+						'description': 'OK: Stars sum returned successfully',
+						'content': {
+							'application/json': {
+								'schema': {
+									'type': 'object',
+									'$ref': '#/components/schemas/Stars'
 								}
 							}
 						}
@@ -202,20 +202,20 @@ export default {
 				}
 			}
 		},
-		"/user/commits": {
-			"get": {
-				"summary": "Get the authenticated user's summed commits",
-				"description": "This route/method gets the authenticated user's summed commits in public and private repositories",
-				"security": [{ "bearerAuth": [] }],
-				"tags": ["Stats"],
-				"responses": {
-					"200": {
-						"description": "OK: Commits sum returned successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"$ref": "#/components/schemas/Commits"
+		'/user/commits': {
+			'get': {
+				'summary': 'Get the authenticated user\'s summed commits',
+				'description': 'This route/method gets the authenticated user\'s summed commits in public and private repositories',
+				'security': [{ 'bearerAuth': [] }],
+				'tags': ['Stats'],
+				'responses': {
+					'200': {
+						'description': 'OK: Commits sum returned successfully',
+						'content': {
+							'application/json': {
+								'schema': {
+									'type': 'object',
+									'$ref': '#/components/schemas/Commits'
 								}
 							}
 						}
@@ -229,20 +229,20 @@ export default {
 				}
 			}
 		},
-		"/user/pulls": {
-			"get": {
-				"summary": "Get the authenticated user's summed pulls",
-				"description": "This route/method gets the authenticated user's summed pulls in public and private repositories",
-				"security": [{ "bearerAuth": [] }],
-				"tags": ["Stats"],
-				"responses": {
-					"200": {
-						"description": "OK: Pulls sum returned successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"$ref": "#/components/schemas/Pulls"
+		'/user/pulls': {
+			'get': {
+				'summary': 'Get the authenticated user\'s summed pulls',
+				'description': 'This route/method gets the authenticated user\'s summed pulls in public and private repositories',
+				'security': [{ 'bearerAuth': [] }],
+				'tags': ['Stats'],
+				'responses': {
+					'200': {
+						'description': 'OK: Pulls sum returned successfully',
+						'content': {
+							'application/json': {
+								'schema': {
+									'type': 'object',
+									'$ref': '#/components/schemas/Pulls'
 								}
 							}
 						}
@@ -256,20 +256,20 @@ export default {
 				}
 			},
 		},
-		"/user/languages": {
-			"get": {
-				"summary": "Get the authenticated user's used languages",
-				"description": "This route/method gets the authenticated user's used languages in public and private repositories",
-				"security": [{ "bearerAuth": [] }],
-				"tags": ["Stats"],
-				"responses": {
-					"200": {
-						"description": "OK: Used languages returned successfully",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "object",
-									"$ref": "#/components/schemas/Languages"
+		'/user/languages': {
+			'get': {
+				'summary': 'Get the authenticated user\'s used languages',
+				'description': 'This route/method gets the authenticated user\'s used languages in public and private repositories',
+				'security': [{ 'bearerAuth': [] }],
+				'tags': ['Stats'],
+				'responses': {
+					'200': {
+						'description': 'OK: Used languages returned successfully',
+						'content': {
+							'application/json': {
+								'schema': {
+									'type': 'object',
+									'$ref': '#/components/schemas/Languages'
 								},
 								'examples': {
 									'Response example': {
@@ -315,48 +315,48 @@ export default {
 
 				}
 			},
-			"User": {
-				"type": "object",
-				"properties": {
-					"login": { "type": "string" },
-					"id": { "type": "number" },
-					"node_id": { "type": "string" },
-					"avatar_url": { "type": "string" },
-					"gravatar_id": { "type": "string" },
-					"url": { "type": "string" },
-					"html_url": { "type": "string" },
-					"followers_url": { "type": "string" },
-					"following_url": { "type": "string" },
-					"gists_url": { "type": "string" },
-					"starred_url": { "type": "string" },
-					"subscriptions_url": { "type": "string" },
-					"organizations_url": { "type": "string" },
-					"repos_url": { "type": "string" },
-					"events_url": { "type": "string" },
-					"received_events_url": { "type": "string" },
-					"type": { "type": "string" },
-					"site_admin": { "type": "boolean" },
-					"name": { "type": "string" },
-					"company": { "type": "string" },
-					"blog": { "type": "string" },
-					"location": { "type": "string" },
-					"email": { "type": "string" },
-					"hireable": { "type": "boolean" },
-					"bio": { "type": "string" },
-					"twitter_username": { "type": "string" },
-					"public_repos": { "type": "number" },
-					"public_gists": { "type": "number" },
-					"followers": { "type": "number" },
-					"following": { "type": "number" },
-					"created_at": { "type": "string" },
-					"updated_at": { "type": "string" },
+			'User': {
+				'type': 'object',
+				'properties': {
+					'login': { 'type': 'string' },
+					'id': { 'type': 'number' },
+					'node_id': { 'type': 'string' },
+					'avatar_url': { 'type': 'string' },
+					'gravatar_id': { 'type': 'string' },
+					'url': { 'type': 'string' },
+					'html_url': { 'type': 'string' },
+					'followers_url': { 'type': 'string' },
+					'following_url': { 'type': 'string' },
+					'gists_url': { 'type': 'string' },
+					'starred_url': { 'type': 'string' },
+					'subscriptions_url': { 'type': 'string' },
+					'organizations_url': { 'type': 'string' },
+					'repos_url': { 'type': 'string' },
+					'events_url': { 'type': 'string' },
+					'received_events_url': { 'type': 'string' },
+					'type': { 'type': 'string' },
+					'site_admin': { 'type': 'boolean' },
+					'name': { 'type': 'string' },
+					'company': { 'type': 'string' },
+					'blog': { 'type': 'string' },
+					'location': { 'type': 'string' },
+					'email': { 'type': 'string' },
+					'hireable': { 'type': 'boolean' },
+					'bio': { 'type': 'string' },
+					'twitter_username': { 'type': 'string' },
+					'public_repos': { 'type': 'number' },
+					'public_gists': { 'type': 'number' },
+					'followers': { 'type': 'number' },
+					'following': { 'type': 'number' },
+					'created_at': { 'type': 'string' },
+					'updated_at': { 'type': 'string' },
 				}
 			},
-			"Login": {
-				"type": "object",
-				"properties": {
-					"username": { "type": "string" },
-					"pat": { "type": "string" }
+			'Login': {
+				'type': 'object',
+				'properties': {
+					'username': { 'type': 'string' },
+					'pat': { 'type': 'string' }
 				}
 			},
 			'Commits': {
@@ -383,8 +383,8 @@ export default {
 
 			},
 		},
-		"securitySchemes": {
-			"bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+		'securitySchemes': {
+			'bearerAuth': { 'type': 'http', 'scheme': 'bearer', 'bearerFormat': 'JWT' }
 		}
 	}
 

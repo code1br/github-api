@@ -67,7 +67,7 @@ export interface GithubSearchUserModel {
 export interface UserSearchModel {
 	login: string,
 	email?: string,
-	commits?:{
+	commits:{
 		total_commits_since_date: number
 	}
 }
