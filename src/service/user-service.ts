@@ -8,7 +8,9 @@ import Cryptr from 'cryptr';
 import { UserSearchModel } from '../model/user-model';
 
 export class UserService {
-	constructor(private GitHubApi: GitHubApi) { }
+	constructor(private GitHubApi: GitHubApi) { 
+		//nothing to set on constructor
+	} 
 
 	async authenticateUser(username: string, pat: string) {
 		if (!username) {
