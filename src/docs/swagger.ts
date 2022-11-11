@@ -148,6 +148,66 @@ export default {
 				}
 			}
 		},
+		'/users/search': {
+			'get': {
+				'summary': 'Get a list of leads according to the search criteria',
+				'description': 'This route/method gets a list of users or organizations according to the search criteria',
+				'security': [{ 'bearerAuth': [] }],
+				'tags': ['Search'],
+				'parameters': [
+					{
+						'in': 'query',
+						'name': 'location',
+						'description': 'location of the search',
+						'required': false
+					},{
+						'in': 'query',
+						'name': 'language',
+						'description': 'desired users language',
+						'required': true
+					},{
+						'in': 'query',
+						'name': 'type',
+						'description': 'Profile type, <strong>can be: [users, orgs]</strong>',
+						'required': true
+					},{
+						'in': 'query',
+						'name': 'sinceDate',
+						'description': 'Reference date to count commits after it in the format: <strong>YYYY-MM-DD</strong>',
+						'required': false
+					},{
+						'in': 'query',
+						'name': 'sort',
+						'description': 'Sort results by a criteria, <strong>can be: [followers, repositories, joined]</strong>. If it is not provided, default value is best match',
+						'required': false
+					},{
+						'in': 'query',
+						'name': 'pages',
+						'description': 'quantity of result pages to sort by the commit count, one page brings a list of a 100 users and it <strong>must be between 1 and 10</strong>',
+						'required': true
+					}
+				],
+				'responses': {
+					'200': {
+						'description': 'No Content: Request was sent to Github API',
+						'content': {
+							'application/json': {
+								'schema': {
+									'type': 'object',
+									'$ref': '#/components/schemas/User'
+								}
+							}
+						}
+					},
+					'400': {
+						'description': 'Bad Request: It was not possible to unfollow the given user'
+					},
+					'401': {
+						'description': 'Unauthorized: Error on authentication'
+					}
+				}
+			}
+		},
 		'/user/repositories': {
 			'get': {
 				'summary': 'Get the authenticated user\'s repositories',
