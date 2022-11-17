@@ -1,48 +1,50 @@
-import { GitHubApi } from "../apis/github-api";
-import { CURRENT_USER } from "../middlewares/user-ensureAuthentication";
-import { GithubCommitModel } from "../model/commit-model";
-import { GithubPullModel } from "../model/pull-model";
-import { GithubRepositoryModel, RepositoryModel } from "../model/repository-model";
-import { client } from "../prisma/client";
-import { GenerateJwtTokenProvider } from "../provider/generate-jwt-token-provider";
-import Cryptr from "cryptr";
+import { GitHubApi } from '../apis/github-api';
+import { CURRENT_USER } from '../middlewares/user-ensureAuthentication';
+import { GithubPullModel } from '../model/pull-model';
+import { GithubRepositoryModel, RepositoryModel } from '../model/repository-model';
+import { client } from '../prisma/client';
+import { GenerateJwtTokenProvider } from '../provider/generate-jwt-token-provider';
+import Cryptr from 'cryptr';
+import { UserSearchModel } from '../model/user-model';
 
 export class UserService {
-	constructor(private GitHubApi: GitHubApi) { }
+	constructor(private GitHubApi: GitHubApi) { 
+		//nothing to set on constructor
+	} 
 
 	async authenticateUser(username: string, pat: string) {
-		if(!username){
-			throw new Error(`Username was not provided`)
+		if (!username) {
+			throw new Error('Username was not provided');
 		}
-		if(!pat){
-			throw new Error(`PAT was not provided`)
+		if (!pat) {
+			throw new Error('PAT was not provided');
 		}
-		if(!pat.startsWith('ghp_')){
-			throw new Error(`PAT is not valid`)
+		if (!pat.startsWith('ghp_')) {
+			throw new Error('PAT is not valid');
 		}
-		
-		const apiResponse = await this.GitHubApi.checkUserCredentials(username, pat)
 
-		if(apiResponse.data.login != username){
-			throw new Error(`Username does not match`)
+		const apiResponse = await this.GitHubApi.checkUserCredentials(username, pat);
+
+		if (apiResponse.data.login != username) {
+			throw new Error('Username does not match');
 		}
-		
+
 		const userOnDatabase = await client.user.findFirst({
 			where: { username }
-		})
-		
-		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || 'default')
-		
-		const encryptedPat = cryptr.encrypt(pat)
+		});
 
-		if(userOnDatabase && cryptr.decrypt(userOnDatabase.pat) != pat){
+		const cryptr = new Cryptr(process.env.CRYPTR_SECRET || 'default');
+
+		const encryptedPat = cryptr.encrypt(pat);
+
+		if (userOnDatabase && cryptr.decrypt(userOnDatabase.pat) != pat) {
 			await client.user.update({
 				where: { username },
 				data: { pat: encryptedPat }
-			})
+			});
 		}
-		
-		const token = new GenerateJwtTokenProvider().execute(username)
+
+		const token = new GenerateJwtTokenProvider().execute(username);
 
 		if (!userOnDatabase) {
 			await client.user.create({
@@ -51,15 +53,15 @@ export class UserService {
 					pat: encryptedPat,
 					token
 				}
-			})
-		}else{
+			});
+		} else {
 			await client.user.update({
 				where: { username },
 				data: { token }
-			})
+			});
 		}
 
-		return token
+		return token;
 	}
 
 	async followUser(userToFollow: string) {
@@ -116,33 +118,44 @@ export class UserService {
 		return { stars: numberOfStars };
 	}
 
-	async getNumberOfCommits() {
-		const repositoriesToSearch: RepositoryModel[] = await this.listRepositories();
+	async getNumberOfCommitsForAuthUser(sinceDate = `${new Date().getFullYear()}-01-01`) {
 
-		let totalCommits = 0;
-		let totalCommitsInCurrentYear = 0;
-
-		const currentYear = new Date().getFullYear();
-
-		for (const repository of repositoriesToSearch) {
-			const commits: GithubCommitModel[] = await this.GitHubApi.getRepositoryCommits(repository.owner, repository.name);
-
-			for (const commit of commits) {
-				if (commit.author) {
-					if (commit.author.login == CURRENT_USER.login) {
-						totalCommits++;
-
-						if (new Date(commit.commit.committer.date).getFullYear() == currentYear) {
-							totalCommitsInCurrentYear++;
-						}
-					}
-				}
-			}
-		}
+		const login = CURRENT_USER.login;
+	
+		const totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceBegining(login));
+		const totalCommitsInCurrentYear = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate));
 
 		return {
-			commits_in_current_year: totalCommitsInCurrentYear,
-			total_commits: totalCommits
+			commits_in_current_year: totalCommitsInCurrentYear.data.total_count,
+			total_commits: totalCommits.data.total_count
+		};
+	}
+
+	async getNumberOfCommits(username: string, sinceDate = `${new Date().getFullYear()}-01-01`) {
+
+		if(!username){
+			throw new Error('Invalid username');
+		}
+
+		if(isNaN(Date.parse(sinceDate))){
+			throw new Error('Invalid date');
+		}
+
+		const day = parseInt(sinceDate.split('-')[2]);
+		const date = new Date(sinceDate);
+
+		if(day != date.getUTCDate()){
+			throw new Error('Invalid date');
+		}
+
+		const login = username;
+
+		const totalCommits = (await this.GitHubApi.getNumberOfCommitsSinceDate(login, sinceDate));
+
+		console.info(`Remaining requests: ${totalCommits.headers['x-ratelimit-remaining']} requests`);
+
+		return {
+			total_commits_since_date: totalCommits.data.total_count,
 		};
 
 	}
@@ -200,7 +213,7 @@ export class UserService {
 			}
 		}
 
-		Object.entries(languagesBytesSize).forEach(([key, value]) => {
+		Object.entries(languagesBytesSize).forEach(([, value]) => {
 			totalBytes += value;
 		});
 
@@ -211,17 +224,68 @@ export class UserService {
 		return languagesPercentageUsage;
 	}
 
-	async searchUser(username: string) {
+	async getUser(username: string) {
 		if (!username) {
 			throw new Error('UserToSearch was not provided');
 		}
 
-		const result = await this.GitHubApi.searchUser(username);
+		const result = await this.GitHubApi.getUser(username);
 
 		if (result.status != 200) {
 			throw new Error(`Response status different from expected ${result.status}`);
 		} else {
 			return result.data;
 		}
+	}
+
+	async searchUsers(queryObj: {q: string, sort: string}, pages: number) {
+		const params = new URLSearchParams(queryObj).toString();
+
+		return await this.GitHubApi.searchUsers(params, pages);
+	}
+
+	async searchAndSortUsers(language?: string, type?: string, location?: string, sort?: string, sinceDate?: string, pages?: number) {
+		if(!language){
+			throw new Error('Language not specified');
+		}
+		if(!type){
+			throw new Error('Type not specified');
+		}
+		if(!pages){
+			throw new Error('Pages not specified');
+		}
+
+		// eslint-disable-next-line prefer-const
+		let queryObj= {
+			q: `language:${language} type:${type}`,
+			sort: ''
+		};
+
+		if(location){
+			queryObj.q += ` location:${location}`;
+		}
+
+		if(sort){
+			queryObj.sort = sort;
+		}
+
+		const users: UserSearchModel[] = await this.searchUsers(queryObj, pages);
+
+		for (const user of users) {
+			user.commits = await this.getNumberOfCommits(user.login, sinceDate);
+			user.email = (await this.getUser(user.login)).email;
+		}
+
+		users.sort((a: UserSearchModel,b: UserSearchModel) => {
+			if(a.commits.total_commits_since_date > b.commits.total_commits_since_date){
+				return -1;
+			}else{
+				return 1;
+			}
+			
+		});
+
+		return users;
+
 	}
 }

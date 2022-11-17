@@ -1,18 +1,16 @@
-const morgan = require('morgan');
-export const logger = require('../utils/logger');
+import morgan from 'morgan';
+import { logger } from '../utils/logger';
 
 const stream = {
-  write: (message: 'message') => logger.http(message),
+	write: (message: 'message') => logger.http(message),
 };
 
 const skip = () => {
-  const env = process.env.NODE_ENV || "development";
-  return env !== "development";
+	const env = process.env.NODE_ENV || 'development';
+	return env !== 'development';
 };
 
-const morganMiddleware = morgan(
-  ":remote-addr :method :url :status :res[content-length] - :response-time ms",
-  { stream, skip }
+export const morganMiddleware = morgan(
+	':remote-addr :method :url :status :res[content-length] - :response-time ms',
+	{ stream, skip }
 );
-
-module.exports = morganMiddleware;
